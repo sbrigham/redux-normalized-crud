@@ -1,0 +1,56 @@
+{
+  "name": "redux-normalized-crud",
+  "version": "0.1.0",
+  "description": "An attempt to standardize restful calls within a growing redux application",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepublish": "npm run build",
+    "test": "npm run lint",
+    "lint": "eslint ./",
+    "build": "babel src --out-dir lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbrigham/redux-normalized-crud.git"
+  },
+  "keywords": [
+    "redux",
+    "middleware",
+    "promise",
+    "async",
+    "normalize",
+    "normalizr",
+    "react",
+    "crud",
+    "api"
+  ],
+  "author": "Spencer Brigham <sdbrigha@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sbrigham/redux-normalized-crud/issues"
+  },
+  "homepage": "https://github.com/sbrigham/redux-normalized-crud#readme",
+  "peerDependencies": {
+    "redux": "*"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "qs": "^6.3.0",
+    "redux-optimist": "0.0.2",
+    "redux-saga": "^0.14.3",
+    "uuid": "^3.0.1",
+    "whatwg-fetch": "^2.0.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.20.0",
+    "babel-eslint": "^6.1.0",
+    "babel-preset-react-native": "^1.9.0",
+    "eslint": "^3.11.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^1.16.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-prefer-object-spread": "^1.0.0",
+    "eslint-plugin-react": "^6.8.0"
+  }
+}

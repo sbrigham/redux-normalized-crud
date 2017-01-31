@@ -1,2 +1,4 @@
-# redux-crud
-An attempt to standardize / normalize all calls to a restful api
+# redux-normalized-crud
+An attempt to standardize restful calls within a growing redux application
+
+Work in progress
