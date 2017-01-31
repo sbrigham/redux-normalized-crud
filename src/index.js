@@ -19,7 +19,7 @@ export default function(config) {
       normalizeResponse
     });
 
-    const api = createApi(config.baseUrl);
+    const api = createApi(baseUrl);
 
     return {
       constants,
