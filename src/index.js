@@ -7,8 +7,8 @@ export default function(config) {
   const {baseUrl, normalizeResponse} = config;
   if (!baseUrl) throw new Error('The base url needs to be defined!');
 
-  const registerEntity = function(schema, key) {
-    const key = key || schema._key;
+  const registerEntity = function(schema, defaultKey) {
+    const key = defaultKey || schema._key;
 
     const constants = genConstants(key);
     const creators = genCreators(constants);
