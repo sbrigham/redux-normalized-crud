@@ -3,8 +3,8 @@ import Qs from 'qs';
 
 const defaultHeaders = {
   'Cache-Control': 'no-cache',
-  'Accept': 'application/json',
-  'Content-Type': 'application/json'
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
 };
 
 export default (baseURL, headers = defaultHeaders) => {
@@ -18,7 +18,7 @@ export default (baseURL, headers = defaultHeaders) => {
   const get = (url, params) => {
     return fetch(`${url}?${Qs.stringify(params)}`, {
       credentials: 'same-origin',
-      headers
+      headers,
     })
     .then(handleErrors)
     .then(response => response.json());
@@ -29,7 +29,7 @@ export default (baseURL, headers = defaultHeaders) => {
       method: 'PUT',
       credentials: 'same-origin',
       body: JSON.stringify(body),
-      headers
+      headers,
     })
     .then(handleErrors)
     .then(response => response.json());
@@ -40,7 +40,7 @@ export default (baseURL, headers = defaultHeaders) => {
       method: 'PUT',
       credentials: 'same-origin',
       body: JSON.stringify(body),
-      headers
+      headers,
     })
     .then(handleErrors)
     .then(response => response.json());
@@ -50,15 +50,15 @@ export default (baseURL, headers = defaultHeaders) => {
     get,
     post,
     put,
-    delete : (url, body, params) => {
-      return fetch(`${url}?${Qs.stringify(params)}`, {
+    delete: (url, body, params) => (
+      fetch(`${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
         credentials: 'same-origin',
         body: JSON.stringify(body),
-        headers
+        headers,
       })
       .then(handleErrors)
-      .then(response => response.json());
-    }
+      .then(response => response.json())
+    ),
   }
-};
+}

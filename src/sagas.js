@@ -1,6 +1,5 @@
 import {takeEvery} from 'redux-saga';
 import {put, call} from 'redux-saga/effects';
-import {normalizeResponse} from './utils';
 import {BEGIN, COMMIT, REVERT} from 'redux-optimist';
 import uuid from 'uuid';
 

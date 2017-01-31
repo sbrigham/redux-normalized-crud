@@ -3,11 +3,11 @@ import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
 
-export default function(config) {
-  const {baseUrl, normalizeResponse} = config;
+export default function (config) {
+  const { baseUrl, normalizeResponse } = config;
   if (!baseUrl) throw new Error('The base url needs to be defined!');
 
-  const registerEntity = function(schema, defaultKey) {
+  const registerEntity = function (schema, defaultKey) {
     const key = defaultKey || schema._key;
 
     const constants = genConstants(key);
@@ -16,7 +16,7 @@ export default function(config) {
       constants,
       creators,
       schema,
-      normalizeResponse
+      normalizeResponse,
     });
 
     const api = createApi(baseUrl);
@@ -24,11 +24,11 @@ export default function(config) {
     return {
       constants,
       creators,
-      sagas: sagas.init(api)
+      sagas: sagas.init(api),
     };
   };
 
   return {
-    registerEntity
-  }
+    registerEntity,
+  };
 }

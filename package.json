@@ -34,6 +34,7 @@
     "redux": "*"
   },
   "dependencies": {
+    "camelcase": "^4.0.0",
     "lodash": "^4.17.4",
     "qs": "^6.3.0",
     "redux-optimist": "0.0.2",

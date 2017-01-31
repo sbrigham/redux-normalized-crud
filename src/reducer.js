@@ -1,13 +1,13 @@
 import _ from 'lodash/uniq';
 
 export default (state = {}, action) => {
-  const {payload, normalize, optimist, removeEntity} = action;
+  const { payload, normalize, optimist, removeEntity } = action;
   let entities;
-  if(removeEntity && removeEntity.entityName in state && removeEntity.id in state[removeEntity.entityName]) {
-    let newEntities = {...state[removeEntity.entityName]};
+  if (removeEntity && removeEntity.entityName in state && removeEntity.id in state[removeEntity.entityName]) {
+    const newEntities = { ...state[removeEntity.entityName] };
     delete newEntities[removeEntity.id];
     const newState = {
-      ...state
+      ...state,
     };
     newState[removeEntity.entityName] = newEntities;
     return newState;
@@ -22,20 +22,20 @@ export default (state = {}, action) => {
       // deep merge keys in entities
       const n = Object.keys(entities[key]).reduce((a, k) => {
         const existingEntity = key in state && k in state[key] ? state[key][k] : {};
-        let newEntity = entities[key][k];
-        a[k] = {...existingEntity, ...newEntity};
+        const newEntity = entities[key][k];
+        a[k] = { ...existingEntity, ...newEntity };
         return a;
       }, {});
-      let existingEntities = state[key];
+      const existingEntities = state[key];
       if (optimist && optimist.id && normalize.result && normalize.result != optimist.id) {
         delete existingEntities[optimist.id];
       }
 
-      acc[key] = {...existingEntities, ...n};
+      acc[key] = { ...existingEntities, ...n };
       return acc;
     }, {});
     // merge state
-    return {...state, ...ent};
+    return { ...state, ...ent };
   }
   return state;
 };
@@ -45,16 +45,16 @@ export const defaultState = {
   isLoading: false,
   ids: [],
   totalItems: 0,
-  hasError: false
+  hasError: false,
 };
 
-export const groupByKey = key => {
+export const groupByKey = (key) => {
   return `by${key.charAt(0).toUpperCase() + key.slice(1)}`;
 };
 
 export const paginate = (reduxConst) => {
   const reducer = (state = defaultState, action) => {
-    const {payload, normalize, response, paginate, optimist, removeEntity} = action;
+    const { payload, normalize, response, paginate, optimist, removeEntity } = action;
     let result = [], totalItems = state.totalItems || 0, direction;
 
     if (payload && 'result' in payload) result = payload.result;
