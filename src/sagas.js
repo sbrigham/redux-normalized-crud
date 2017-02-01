@@ -18,14 +18,15 @@ export default ({constants, creators, schema, normalizeResponse}) => {
       } else {
         response = yield call(api.get, url || resourceUrl, query);
       }
-      if(onSuccess) yield put(onSuccess(response.data));
+      if(onSuccess) yield put(onSuccess(response));
 
       yield put(creators.loadSuccess({
         response, paginate, path,
-        normalize: normalizeResponse(response.data, schema)
+        normalize: normalizeResponse(response, schema)
       }));
 
     } catch (error) {
+      console.log(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.loadFailure({error, path, paginate}));
     }
@@ -53,7 +54,7 @@ export default ({constants, creators, schema, normalizeResponse}) => {
 
       yield put(creators.addSuccess({
         path, query, paginate, response,
-        normalize: normalizeResponse(response.data, schema),
+        normalize: normalizeResponse(response, schema),
         optimist: optimistic ? {
           type: COMMIT,
           id: optimisticTransactionId

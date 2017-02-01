@@ -1,4 +1,3 @@
-import fetch from 'whatwg-fetch';
 import Qs from 'qs';
 
 const defaultHeaders = {
@@ -16,7 +15,7 @@ export default (baseURL, headers = defaultHeaders) => {
   };
 
   const get = (url, params) => {
-    return fetch(`${url}?${Qs.stringify(params)}`, {
+    return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
       credentials: 'same-origin',
       headers,
     })
@@ -25,7 +24,7 @@ export default (baseURL, headers = defaultHeaders) => {
   };
 
   const post = (url, body, params) => {
-    return fetch(`${url}?${Qs.stringify(params)}`, {
+    return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       credentials: 'same-origin',
       body: JSON.stringify(body),
@@ -36,7 +35,7 @@ export default (baseURL, headers = defaultHeaders) => {
   };
 
   const put = (url, body, params) => {
-    return fetch(`${url}?${Qs.stringify(params)}`, {
+    return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       credentials: 'same-origin',
       body: JSON.stringify(body),
@@ -51,7 +50,7 @@ export default (baseURL, headers = defaultHeaders) => {
     post,
     put,
     delete: (url, body, params) => (
-      fetch(`${url}?${Qs.stringify(params)}`, {
+      fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
         credentials: 'same-origin',
         body: JSON.stringify(body),
