@@ -1,5 +1,4 @@
-import {takeEvery} from 'redux-saga';
-import {put, call} from 'redux-saga/effects';
+import {put, call, takeEvery} from 'redux-saga/effects';
 import {BEGIN, COMMIT, REVERT} from 'redux-optimist';
 import uuid from 'uuid';
 

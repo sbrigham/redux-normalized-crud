@@ -1,6 +1,6 @@
 import _ from 'lodash/uniq';
 
-export default (state = {}, action) => {
+export const entitiesReducer = (state = {}, action) => {
   const { payload, normalize, optimist, removeEntity } = action;
   let entities;
   if (removeEntity && removeEntity.entityName in state && removeEntity.id in state[removeEntity.entityName]) {
@@ -52,7 +52,7 @@ export const groupByKey = (key) => {
   return `by${key.charAt(0).toUpperCase() + key.slice(1)}`;
 };
 
-export const paginate = (reduxConst) => {
+export const paginateReducer = (reduxConst) => {
   const reducer = (state = defaultState, action) => {
     const { payload, normalize, response, paginate, optimist, removeEntity } = action;
     let result = [], totalItems = state.totalItems || 0, direction;

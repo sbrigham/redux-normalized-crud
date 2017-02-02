@@ -32,3 +32,5 @@ export default function (config) {
     registerEntity,
   };
 }
+
+export { paginateReducer, entitiesReducer } from './reducer';

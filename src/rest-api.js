@@ -16,8 +16,7 @@ export default (baseURL, headers = defaultHeaders) => {
 
   const get = (url, params) => {
     return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
-      credentials: 'same-origin',
-      headers,
+      headers
     })
     .then(handleErrors)
     .then(response => response.json());
@@ -26,7 +25,6 @@ export default (baseURL, headers = defaultHeaders) => {
   const post = (url, body, params) => {
     return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
-      credentials: 'same-origin',
       body: JSON.stringify(body),
       headers,
     })
@@ -37,7 +35,6 @@ export default (baseURL, headers = defaultHeaders) => {
   const put = (url, body, params) => {
     return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
-      credentials: 'same-origin',
       body: JSON.stringify(body),
       headers,
     })
@@ -52,7 +49,6 @@ export default (baseURL, headers = defaultHeaders) => {
     delete: (url, body, params) => (
       fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
-        credentials: 'same-origin',
         body: JSON.stringify(body),
         headers,
       })
