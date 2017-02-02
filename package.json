@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "camelcase": "^4.0.0",
+    "domain-task": "^2.0.2",
     "lodash": "^4.17.4",
     "qs": "^6.3.0",
     "redux-optimist": "0.0.2",

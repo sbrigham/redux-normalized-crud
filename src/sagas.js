@@ -1,6 +1,7 @@
 import {put, call, takeEvery} from 'redux-saga/effects';
 import {BEGIN, COMMIT, REVERT} from 'redux-optimist';
 import uuid from 'uuid';
+import { addTask } from 'domain-task';
 
 export default ({constants, creators, schema, normalizeResponse}) => {
   const resourceUrl = schema._key;
@@ -13,9 +14,17 @@ export default ({constants, creators, schema, normalizeResponse}) => {
     try {
       let response;
       if (id !== undefined) {
-        response = yield call(api.get, `${url || resourceUrl}/${id}`, query);
+        var promise = new Promise(function(resolve, reject) {
+          resolve(api.get(`${url || resourceUrl}/${id}`, query))
+        });
+        addTask(promise);
+        response = yield promise;
       } else {
-        response = yield call(api.get, url || resourceUrl, query);
+        var promise = new Promise(function(resolve, reject) {
+          resolve(api.get(`${url || resourceUrl}`, query))
+        });
+        addTask(promise);
+        response = yield promise;
       }
       if(onSuccess) yield put(onSuccess(response));
 
