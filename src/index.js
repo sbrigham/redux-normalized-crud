@@ -3,13 +3,12 @@ import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
 
-export default function (config) {
-  const { baseUrl, normalizeResponse } = config;
-  if (!baseUrl) throw new Error('The base url needs to be defined!');
+export const registerEntity = function (config, schema) {
+    const { baseUrl, normalizeResponse } = config;
+    if (!baseUrl) throw new Error('The baseUrl property needs to be defined in the config object.');
+    if (!normalizeResponse) throw new Error('A normalizeResponse property needs to be defined in the config object');
 
-  const registerEntity = function (schema, defaultKey) {
-    const key = defaultKey || schema._key;
-
+    const key = schema._key;
     const constants = genConstants(key);
     const creators = genCreators(constants);
     const sagas = genSagas({
@@ -26,11 +25,7 @@ export default function (config) {
       creators,
       sagas: sagas.init(api),
     };
-  };
-
-  return {
-    registerEntity,
-  };
 }
 
-export { paginateReducer, entitiesReducer } from './reducer';
+export { pagedData, entityData } from './selector';
+export { entitiesReducer } from './reducer';

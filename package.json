@@ -39,6 +39,7 @@
     "qs": "^6.3.0",
     "redux-optimist": "0.0.2",
     "redux-saga": "^0.14.3",
+    "reselect": "^2.5.4",
     "uuid": "^3.0.1",
     "whatwg-fetch": "^2.0.2"
   },

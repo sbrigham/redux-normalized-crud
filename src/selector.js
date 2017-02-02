@@ -1,5 +1,5 @@
 import {createSelector} from 'reselect';
-import {defaultState, groupByKey} from './reducers/PaginationReducer';
+import {defaultState, groupByKey} from './reducer';
 
 const pagination = state => state.pagination;
 const entities = state => state.entities;
@@ -11,6 +11,6 @@ export const pagedData = ({key, index}, resource) => createSelector([pagination]
   return defaultState;
 });
 
-export default (entityName, id) => createSelector([entities], entities => {
+export const entityData = (entityName, id) => createSelector([entities], entities => {
   return entityName in entities ? entities[entityName][id] : null;
 });
