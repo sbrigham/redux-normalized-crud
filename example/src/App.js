@@ -7,7 +7,14 @@ import { creators as commentCreators } from './redux/comment-redux';
 
 class App extends Component {
   componentWillMount() {
-    this.props.loadPosts({});
+    this.props.loadPosts({
+      paginate: {
+        groupBy: {
+          key: 'user',
+          index: 1
+        }
+      }
+    });
     this.props.loadComments({});
   }
 

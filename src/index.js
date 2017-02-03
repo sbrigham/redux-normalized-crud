@@ -2,6 +2,7 @@ import genCreators from './action-creators';
 import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
+import { paginateReducer } from './reducer';
 
 export const registerEntity = function (config, schema) {
     const { baseUrl, normalizeResponse } = config;
@@ -15,7 +16,7 @@ export const registerEntity = function (config, schema) {
       constants,
       creators,
       schema,
-      normalizeResponse,
+      normalizeResponse
     });
 
     const api = createApi(baseUrl);
@@ -24,6 +25,9 @@ export const registerEntity = function (config, schema) {
       constants,
       creators,
       sagas: sagas.init(api),
+      pagination: {
+        [key]: paginateReducer(constants)
+      }
     };
 }
 

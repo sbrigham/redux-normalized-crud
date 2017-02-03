@@ -1,4 +1,4 @@
-import _ from 'lodash/uniq';
+import _ from 'lodash';
 
 export const entitiesReducer = (state = {}, action) => {
   const { payload, normalize, optimist, removeEntity } = action;
