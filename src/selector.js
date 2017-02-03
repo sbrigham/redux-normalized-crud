@@ -4,13 +4,17 @@ import {defaultState, groupByKey} from './reducer';
 const pagination = state => state.pagination;
 const entities = state => state.entities;
 
-export const pagedData = ({key, index}, resource) => createSelector([pagination], pagination => {
-  if (!resource || !key || !index) throw new Error('Key, index and resource need to be specified in the pagedData selector');
+export const paginationSelector = resourceKey => ({key, index}) => createSelector([pagination], pagination => {
+  if (!resourceKey || !key || !index) throw new Error('Key, index and resource need to be specified in the pagedData selector');
   const byKey = groupByKey(key);
-  if(pagination[resource][byKey] !== undefined && pagination[resource][byKey][index] !== undefined) return pagination[resource][byKey][index];
+  if(pagination[resourceKey][byKey] !== undefined && pagination[resourceKey][byKey][index] !== undefined) return pagination[resourceKey][byKey][index];
   return defaultState;
 });
 
-export const entityData = (entityName, id) => createSelector([entities], entities => {
-  return entityName in entities ? entities[entityName][id] : null;
+export const entitySelector = resourceKey => (id) => createSelector([entities], entities => {
+  if(!resourceKey in entities) return null;
+
+  if (id != undefined) return entities[resourceKey][id];
+
+  return entities;
 });

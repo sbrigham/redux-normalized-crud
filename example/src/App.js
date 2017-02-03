@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { connect } from 'react-redux';
-import { creators as postCreators } from './redux/post-redux';
+import {
+  creators as postCreators,
+  paginationSelector as pagedPosts,
+  entitySelector as postSelector
+} from './redux/post-redux';
 import { creators as commentCreators } from './redux/comment-redux';
 
 class App extends Component {
@@ -19,6 +23,7 @@ class App extends Component {
   }
 
   render() {
+    const { posts } = this.props;
     return (
       <div className="App">
         <div className="App-header">
@@ -28,12 +33,29 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
+        <ul>
+          {
+            posts.map(p => (
+              <li>
+                {p.title}
+              </li>
+            )
+          )}
+        </ul>
       </div>
     );
   }
 }
 
-export default connect(state => state, {
+export default connect(state => {
+  const groupedPosts = pagedPosts({key: 'user', index: 1})(state);
+  const posts = groupedPosts.ids.map(id => postSelector(id)(state));
+
+  console.log(posts);
+  return {
+    posts
+  }
+}, {
   loadPosts: postCreators.loadRequest,
   loadComments: commentCreators.loadRequest
 })(App);

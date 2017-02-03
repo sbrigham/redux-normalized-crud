@@ -6,5 +6,7 @@ export const {
   sagas,
   constants,
   creators,
-  pagination
+  pagination,
+  paginationSelector,
+  entitySelector,
 } = registerEntity(config, new schema.Entity('comments'));

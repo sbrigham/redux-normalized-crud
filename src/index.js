@@ -3,6 +3,7 @@ import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
 import { paginateReducer } from './reducer';
+import { paginationSelector, entitySelector } from './selector';
 
 export const registerEntity = function (config, schema) {
     const { baseUrl, normalizeResponse } = config;
@@ -27,9 +28,10 @@ export const registerEntity = function (config, schema) {
       sagas: sagas.init(api),
       pagination: {
         [key]: paginateReducer(constants)
-      }
+      },
+      entitySelector: entitySelector(key),
+      paginationSelector: paginationSelector(key)
     };
 }
 
-export { pagedData, entityData } from './selector';
 export { entitiesReducer } from './reducer';

@@ -25,7 +25,7 @@ const composeEnhancers =
 // REDUCERS
 const rootReducer = combineReducers({
   entities: entitiesReducer,
-  paginate: combineReducers({
+  pagination: combineReducers({
     ...pagedPosts,
     ...pagedComments
   }),
