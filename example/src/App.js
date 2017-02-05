@@ -36,7 +36,7 @@ class App extends Component {
         <ul>
           {
             posts.map(p => (
-              <li>
+              <li key={p.id}>
                 {p.title}
               </li>
             )
@@ -50,8 +50,6 @@ class App extends Component {
 export default connect(state => {
   const groupedPosts = pagedPosts({key: 'user', index: 1})(state);
   const posts = groupedPosts.ids.map(id => postSelector(id)(state));
-
-  console.log(posts);
   return {
     posts
   }

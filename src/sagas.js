@@ -1,5 +1,5 @@
 import {put, call, takeEvery} from 'redux-saga/effects';
-import {BEGIN, COMMIT, REVERT} from 'redux-optimist';
+import {BEGIN, COMMIT, REVERT} from 'redux-optimistic-ui';
 import uuid from 'uuid';
 import { addTask } from 'domain-task';
 
