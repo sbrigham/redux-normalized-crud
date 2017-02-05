@@ -40,7 +40,7 @@ export default ({constants, creators, schema, normalizeResponse}) => {
     }
   };
   const onAddRequest = function *(api, action) {
-    const {path, payload, query, paginate, optimistic} = action;
+    const {path, payload, query, paginate, optimistic = true} = action;
     let {url} = path;
     let optimisticTransactionId = uuid.v4();
 
@@ -82,7 +82,7 @@ export default ({constants, creators, schema, normalizeResponse}) => {
     }
   };
   const onUpdateRequest = function *(api, action) {
-    const {path, payload, query, paginate, optimistic, onSuccess} = action;
+    const {path, payload, query, paginate, optimistic = true, onSuccess} = action;
     let {id, url} = path;
 
     let optimisticTransactionId = uuid.v4();
@@ -121,7 +121,7 @@ export default ({constants, creators, schema, normalizeResponse}) => {
     }
   };
   const onDeleteRequest = function *(api, action) {
-    const {path, payload, paginate, optimistic} = action;
+    const {path, payload, paginate, optimistic = true} = action;
     let {url, id} = path;
 
     let optimisticTransactionId = uuid.v4();
