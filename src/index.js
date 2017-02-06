@@ -6,7 +6,7 @@ import { paginateReducer } from './reducer';
 import { paginationSelector, entitySelector } from './selector';
 
 export const registerEntity = function (config, schema) {
-    const { baseUrl, normalizeResponse } = config;
+    const { baseUrl, normalizeResponse, onLoadRequest = () => {} } = config;
     if (!baseUrl) throw new Error('The baseUrl property needs to be defined in the config object.');
     if (!normalizeResponse) throw new Error('A normalizeResponse property needs to be defined in the config object');
 
@@ -17,7 +17,8 @@ export const registerEntity = function (config, schema) {
       constants,
       creators,
       schema,
-      normalizeResponse
+      normalizeResponse,
+      onLoadRequest,
     });
 
     const api = createApi(baseUrl);

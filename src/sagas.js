@@ -2,9 +2,9 @@ import {put, call, takeEvery} from 'redux-saga/effects';
 import {BEGIN, COMMIT, REVERT} from 'redux-optimistic-ui';
 import uuid from 'uuid';
 
-export default ({constants, creators, schema, normalizeResponse}) => {
+export default ({constants, creators, schema, normalizeResponse, onLoadRequest}) => {
   const resourceUrl = schema._key;
-  const onLoadRequest = function *(api, action) {
+  const loadRequest = function *(api, action) {
     const {query, paginate} = action;
     let {path, onSuccess} = action;
     path = path || {};
@@ -16,11 +16,13 @@ export default ({constants, creators, schema, normalizeResponse}) => {
         var promise = new Promise(function(resolve, reject) {
           resolve(api.get(`${url || resourceUrl}/${id}`, query))
         });
+        onLoadRequest(promise);
         response = yield promise;
       } else {
         var promise = new Promise(function(resolve, reject) {
           resolve(api.get(`${url || resourceUrl}`, query))
         });
+        onLoadRequest(promise);
         response = yield promise;
       }
       if(onSuccess) yield put(onSuccess(response));
@@ -161,7 +163,7 @@ export default ({constants, creators, schema, normalizeResponse}) => {
     init: function *(api) {
       if(!api) throw new Error('you must specify an api');
       yield [
-        takeEvery(constants.LOAD_REQUEST, onLoadRequest, api),
+        takeEvery(constants.LOAD_REQUEST, loadRequest, api),
         takeEvery(constants.ADD_REQUEST, onAddRequest, api),
         takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
         takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api)
