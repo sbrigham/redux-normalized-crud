@@ -2,7 +2,7 @@ import {put, call, takeEvery} from 'redux-saga/effects';
 import {BEGIN, COMMIT, REVERT} from 'redux-optimistic-ui';
 import uuid from 'uuid';
 
-export default ({constants, creators, schema, normalizeResponse, onLoadRequest}) => {
+export default ({constants, creators, schema, normalizeResponse, onLoadRequest, onServerError}) => {
   const resourceUrl = schema._key;
   const loadRequest = function *(api, action) {
     const {query, paginate} = action;
@@ -33,8 +33,8 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
       }));
 
     } catch (error) {
-      console.log(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
+      onServerError(error);
       yield put(creators.loadFailure({error, path, paginate}));
     }
   };
@@ -73,6 +73,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
       }));
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.log(error);
+      onServerError(error);
       yield put(creators.addFailure({
         error,
         path,
@@ -124,6 +125,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
         }
       }));
     } catch (error) {
+      onServerError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.updateFailure({
         error,
@@ -168,6 +170,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
         normalize: {result: payload}
       }));
     } catch (error) {
+      onServerError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.deleteFailure({
         error,
