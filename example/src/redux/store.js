@@ -1,9 +1,8 @@
-import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-import { entitiesReducer } from 'redux-normalized-crud';
-import { sagas as postSagas, pagination as pagedPosts } from './post-redux';
-import { sagas as commentSagas, pagination as pagedComments } from './comment-redux';
-import {optimistic} from 'redux-optimistic-ui';
+import {combineWithCrudReducers} from 'redux-normalized-crud';
+import { sagas as postSagas } from './post-redux';
+import { sagas as commentSagas} from './comment-redux';
 
 // SAGAS
 const mySaga = function* () {
@@ -24,13 +23,8 @@ const composeEnhancers =
     : compose;
 
 // REDUCERS
-const rootReducer = combineReducers({
-  entities: optimistic(entitiesReducer),
-  pagination: optimistic(combineReducers({
-    ...pagedPosts,
-    ...pagedComments
-  })),
-});
+
+const rootReducer = combineWithCrudReducers({});
 
 const initialState = {};
 

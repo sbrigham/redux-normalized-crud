@@ -1,9 +1,14 @@
+import { optimistic } from 'redux-optimistic-ui';
+import { combineReducers, compose } from 'redux';
+import _ from 'lodash';
 import genCreators from './action-creators';
 import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
-import { paginateReducer } from './reducer';
+import { paginateReducer, entitiesReducer } from './reducer';
 import { paginationSelector, entitySelector } from './selector';
+
+const registeredEntities = {};
 
 export const registerEntity = function (config, schema) {
     const { baseUrl, normalizeResponse, onLoadRequest = () => {} } = config;
@@ -23,16 +28,31 @@ export const registerEntity = function (config, schema) {
 
     const api = createApi(baseUrl);
 
-    return {
+    const registeredEntity = {
       constants,
       creators,
       sagas: sagas.init(api),
-      pagination: {
-        [key]: paginateReducer(constants)
-      },
       entitySelector: entitySelector(key),
       paginationSelector: paginationSelector(key)
     };
+
+    registeredEntities[key] = registeredEntity
+    return registeredEntity;
 }
 
-export { entitiesReducer } from './reducer';
+export function getRegisteredEntities() {
+  return registeredEntities;
+}
+
+export function combineWithCrudReducers(reducerObjects) {
+  let paginationReducers = {};
+  _.forEach(Object.keys(registeredEntities), key => {
+    paginationReducers[key] = paginateReducer(registeredEntities[key].constants);
+  });
+
+  return combineReducers({
+    ...reducerObjects,
+    entities: optimistic(entitiesReducer),
+    pagination: optimistic(combineReducers(paginationReducers))
+  });
+}
