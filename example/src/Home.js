@@ -8,6 +8,7 @@ import {
   entitySelector as postSelector
 } from './redux/post-redux';
 import { creators as commentCreators } from './redux/comment-redux';
+import {Link} from 'react-router';
 
 class App extends Component {
   componentWillMount() {
@@ -33,15 +34,17 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        <ul>
+        <div>
           {
             posts.map(p => (
-              <li key={p.id}>
-                {p.title}
-              </li>
+              <div key={p.id}>
+                <Link to={`/post/${p.id}`}>
+                  {p.title}
+                </Link>
+              </div>
             )
           )}
-        </ul>
+        </div>
       </div>
     );
   }

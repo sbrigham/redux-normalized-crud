@@ -47,9 +47,11 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
       if(optimistic) {
         payload.id = optimisticTransactionId;
         yield put(creators.optimisticRequest({
-          optimist: {
-            type: BEGIN,
-            id: optimisticTransactionId
+          meta: {
+            optimistic: {
+              type: BEGIN,
+              id: optimisticTransactionId
+            }
           },
           paginate,
           payload,
@@ -62,10 +64,12 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
       yield put(creators.addSuccess({
         path, query, paginate, response,
         normalize: normalizeResponse(response, schema),
-        optimist: optimistic ? {
-          type: COMMIT,
-          id: optimisticTransactionId
-        } : null
+        meta: {
+          optimistic: optimistic ? {
+            type: COMMIT,
+            id: optimisticTransactionId
+          } : null
+        }
       }));
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.log(error);
@@ -73,16 +77,22 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
         error,
         path,
         paginate,
-        optimist: optimistic ? {
-          type: REVERT,
-          id: optimisticTransactionId
-        } : null
+        meta: {
+          optimistic: optimistic ? {
+            type: REVERT,
+            id: optimisticTransactionId
+          } : null
+        }
       }));
     }
   };
   const onUpdateRequest = function *(api, action) {
     const {path, payload, query, paginate, optimistic = true, onSuccess} = action;
-    let {id, url} = path;
+
+    if (path === undefined && payload.id === undefined) throw new Error('You need to specify an id for this update request');
+
+    let id = path != undefined ? path.id : payload.id;
+    let url = path != undefined ? path.url : resourceUrl;
 
     let optimisticTransactionId = uuid.v4();
 
@@ -90,33 +100,40 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
       // if optimistic try to set the response as if it came back from the server
       if(optimistic) {
         yield put(creators.optimisticRequest({
-          optimist: {
-            type: BEGIN,
-            id: optimisticTransactionId
+          meta: {
+            optimistic: {
+              type: BEGIN,
+              id: optimisticTransactionId
+            }
           },
           path, query, paginate,
           normalize: normalizeResponse(payload, schema)
         }))
       }
 
-      const response = yield call(api.put, `${url || resourceUrl}${id ? '/' + id: ''}`, payload, query);
+      const response = yield call(api.put, `${url}${'/' + id}`, payload, query);
 
       // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
         path, query, paginate, response,
-        optimist: optimistic ? {
-          type: COMMIT,
-          id: optimisticTransactionId
-        } : null
+        meta: {
+          optimistic: optimistic ? {
+            type: COMMIT,
+            id: optimisticTransactionId
+          } : null
+        }
       }));
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.updateFailure({
         error,
-        optimist: optimistic ? {
-          type: REVERT,
-          id: optimisticTransactionId
-        } : null}));
+        meta: {
+          optimistic: optimistic ? {
+            type: REVERT,
+            id: optimisticTransactionId
+          } : null
+        }
+      }))
     }
   };
   const onDeleteRequest = function *(api, action) {
@@ -127,9 +144,11 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
     try {
       if(optimistic) {
         yield put(creators.optimisticRequest({
-          optimist: {
-            type: BEGIN,
-            id: optimisticTransactionId
+          meta: {
+            optimistic: {
+              type: BEGIN,
+              id: optimisticTransactionId
+            }
           },
           removeEntity: {
             id: path.id,
@@ -140,10 +159,12 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
       yield call(api.delete, url, id);
       yield put(creators.deleteSuccess({
         path, paginate,
-        optimist: optimistic ? {
-          type: COMMIT,
-          id: optimisticTransactionId
-        } : null,
+        meta: {
+          optimistic: optimistic ? {
+            type: COMMIT,
+            id: optimisticTransactionId
+          } : null
+        },
         normalize: {result: payload}
       }));
     } catch (error) {
@@ -152,10 +173,12 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest})
         error,
         path,
         paginate,
-        optimist: optimistic ? {
-          type: REVERT,
-          id: optimisticTransactionId
-        } : null
+        meta: {
+          optimistic: optimistic ? {
+            type: REVERT,
+            id: optimisticTransactionId
+          } : null
+        }
       }));
     }
   };

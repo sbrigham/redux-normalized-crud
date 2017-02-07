@@ -1,8 +1,9 @@
 import {createSelector} from 'reselect';
 import {defaultState, groupByKey} from './reducer';
+import {ensureState} from 'redux-optimistic-ui';
 
-const pagination = state => state.pagination;
-const entities = state => state.entities;
+const pagination = state => ensureState(state.pagination);
+const entities = state => ensureState(state.entities);
 
 export const paginationSelector = resourceKey => ({key, index}) => createSelector([pagination], pagination => {
   if (!resourceKey || !key || !index) throw new Error('Key, index and resource need to be specified in the pagedData selector');
@@ -11,10 +12,12 @@ export const paginationSelector = resourceKey => ({key, index}) => createSelecto
   return defaultState;
 });
 
-export const entitySelector = resourceKey => (id) => createSelector([entities], entities => {
-  if(!resourceKey in entities) return null;
+export const entitySelector = resourceKey => (id = null) => createSelector([entities], entities => {
+  if(entities[resourceKey] === undefined) return null;
 
-  if (id != undefined) return entities[resourceKey][id];
+  if(id === null) return entities[resourceKey];
 
-  return entities[resourceKey];
+  if(entities[resourceKey][id] === undefined) return null;
+
+  return entities[resourceKey][id];
 });
