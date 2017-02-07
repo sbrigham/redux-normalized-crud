@@ -1,4 +1,5 @@
 import Qs from 'qs';
+import customError from './errors'
 
 const defaultHeaders = {
   'Cache-Control': 'no-cache',
@@ -8,9 +9,7 @@ const defaultHeaders = {
 
 export default (baseURL, headers = defaultHeaders) => {
   const handleErrors = (response) => {
-    if (response.status >= 500) {
-      throw Error(response);
-    }
+    if (!response.ok) throw new customError(response);
     return response;
   };
 
