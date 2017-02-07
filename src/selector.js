@@ -16,5 +16,5 @@ export const entitySelector = resourceKey => (id) => createSelector([entities], 
 
   if (id != undefined) return entities[resourceKey][id];
 
-  return entities;
+  return entities[resourceKey];
 });
