@@ -1,15 +1,10 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-import {combineWithCrudReducers} from 'redux-normalized-crud';
-import { sagas as postSagas } from './post-redux';
-import { sagas as commentSagas} from './comment-redux';
+import { combineWithCrudReducers, getCrudSagas } from 'redux-normalized-crud';
 
 // SAGAS
 const mySaga = function* () {
-  yield [
-    postSagas,
-    commentSagas
-  ];
+  yield getCrudSagas();
 };
 
 const sagaMiddleware = createSagaMiddleware();

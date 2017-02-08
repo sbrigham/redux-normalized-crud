@@ -41,8 +41,13 @@ export const registerEntity = function (config, schema) {
     return registeredEntity;
 }
 
-export function getRegisteredEntities() {
-  return registeredEntities;
+export function getCrudSagas() {
+  const registeredSagas = [];
+  _.forEach(Object.keys(registeredEntities), key => {
+    registeredSagas.push(registeredEntities[key].sagas);
+  });
+
+  return registeredSagas;
 }
 
 export function combineWithCrudReducers(reducerObjects) {
