@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { uniq } from 'lodash/fp';
 
 export const entitiesReducer = (state = {}, action) => {
   const { payload, normalize, optimist, removeEntity } = action;
@@ -91,7 +91,7 @@ export const paginateReducer = (reduxConst) => {
         let ids = isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
         return Object.assign({}, state, {
           isLoading: false,
-          ids: _.uniq(ids),
+          ids: uniq(ids),
           totalItems: (totalItems ? totalItems : ids.length)
         });
       }

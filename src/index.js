@@ -1,6 +1,5 @@
 import { optimistic } from 'redux-optimistic-ui';
 import { combineReducers, compose } from 'redux';
-import _ from 'lodash';
 import genCreators from './action-creators';
 import genConstants from './constants';
 import genSagas from './sagas';
@@ -43,7 +42,8 @@ export const registerEntity = function (config, schema) {
 
 export function getCrudSagas() {
   const registeredSagas = [];
-  _.forEach(Object.keys(registeredEntities), key => {
+
+  Object.keys(registeredEntities).forEach(key => {
     registeredSagas.push(registeredEntities[key].sagas);
   });
 
@@ -52,7 +52,8 @@ export function getCrudSagas() {
 
 export function combineWithCrudReducers(reducerObjects) {
   let paginationReducers = {};
-  _.forEach(Object.keys(registeredEntities), key => {
+
+  Object.keys(registeredEntities).forEach(key => {
     paginationReducers[key] = paginateReducer(registeredEntities[key].constants);
   });
 
