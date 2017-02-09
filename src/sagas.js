@@ -112,7 +112,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
         }))
       }
 
-      const response = yield call(api.put, `${url}${'/' + id}`, payload, query);
+      const response = yield call(api.put, `${url}${id ? '/' + id :''}`, payload, query);
 
       // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
