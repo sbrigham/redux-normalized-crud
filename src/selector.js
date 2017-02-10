@@ -13,6 +13,10 @@ export const paginationSelector = resourceKey => (grouping = null) => createSele
       return pagination[resourceKey]['groupings'][byKey][index];
     }
   }
+  const {groupings, ...flatGrouping} = pagination[resourceKey];
+
+  if('ids' in flatGrouping) return flatGrouping;
+
   return defaultState;
 });
 
