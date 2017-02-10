@@ -154,12 +154,9 @@ export const paginateReducer = (reduxConst) => {
     }
   };
 
-  return (state = {}, action) => {
-    const {paginate = null} = action;
-    if(paginate == null) return state;
-    if(paginate && !('groupBy' in paginate)) throw new Error(`A groupBy must be specified in the form groupBy: { index: number, key: string}. For action type: ${action.type} `);
-    if(paginate.groupBy && !('key' in paginate.groupBy))throw new Error(`A key as a string must be specified in your groupBy. For action type: ${action.type}`);
-    if(paginate.groupBy && !('index' in paginate.groupBy))throw new Error(`An index as an int/string must be specified in your groupBy. For action type: ${action.type}`);
+  return (state = {groupings: null}, action) => {
+    const {paginate = false} = action;
+    if(paginate === false) return state;
 
     switch (action.type) {
       case reduxConst.LOAD_REQUEST:
@@ -176,16 +173,34 @@ export const paginateReducer = (reduxConst) => {
       case reduxConst.DELETE_FAILURE:
       case reduxConst.OPTIMISTIC_REQUEST:
         const {groupBy} = paginate;
-        const {key, index} = groupBy;
-        const byKey = groupByKey(key);
+        if(groupBy) {
+          if(paginate && !('groupBy' in paginate)) throw new Error(`A groupBy must be specified in the form groupBy: { index: number, key: string}. For action type: ${action.type} `);
+          if(paginate.groupBy && !('key' in paginate.groupBy))throw new Error(`A key as a string must be specified in your groupBy. For action type: ${action.type}`);
+          if(paginate.groupBy && !('index' in paginate.groupBy))throw new Error(`An index as an int/string must be specified in your groupBy. For action type: ${action.type}`);
 
-        const values = state[byKey] ? state[byKey][index] : {ids: []};
-        return {...state, ...{
-          [byKey]: {
-            ...state[byKey],
-            [index]: {...values, ...reducer(values, action)}
+          const {key, index} = groupBy;
+          const byKey = groupByKey(key);
+
+          const values = state[byKey] ? state[byKey]['groupings'][index] : {ids: []};
+
+          return {
+            ...state,
+            groupings: {
+              ...state.groupings,
+              [byKey]: {
+                ...state[byKey],
+                [index]: {...values, ...reducer(values, action)}
+              }
+            }
+          };
+        } else {
+          const {groupings, ...everythingElse} = state;
+          everythingElse = {ids: [], ...everythingElse};
+          return {
+            groupings,
+            ...reducer(everythingElse, action)
           }
-        }};
+        }
       default:
         return state;
     }

@@ -6,8 +6,8 @@ const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
 };
-
-export default (baseURL, fetchInstance = fetch, headers = defaultHeaders) => {
+export default (baseURL, fetchInstance = null, headers = defaultHeaders) => {
+  fetchInstance = fetchInstance || fetch;
   const handleErrors = (response) => {
     if (!response.ok) throw new customError(response);
     return response;

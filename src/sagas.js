@@ -5,7 +5,7 @@ import uuid from 'uuid';
 export default ({constants, creators, schema, normalizeResponse, onLoadRequest, onServerError}) => {
   const resourceUrl = schema._key;
   const loadRequest = function *(api, action) {
-    const {query, paginate} = action;
+    const {query, paginate = {}} = action;
     let {path, onSuccess} = action;
     path = path || {};
     let {id, url} = path;
@@ -39,7 +39,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
     }
   };
   const onAddRequest = function *(api, action) {
-    const {path, payload, query, paginate, optimistic = true} = action;
+    const {path, payload, query, paginate = {}, optimistic = true} = action;
     let {url} = path;
     let optimisticTransactionId = uuid.v4();
 
@@ -88,7 +88,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
     }
   };
   const onUpdateRequest = function *(api, action) {
-    const {path, payload, query, paginate, optimistic = true, onSuccess} = action;
+    const {path, payload, query, paginate = {}, optimistic = true, onSuccess} = action;
 
     if (path === undefined && payload.id === undefined) throw new Error('You need to specify an id for this update request');
 
@@ -139,7 +139,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
     }
   };
   const onDeleteRequest = function *(api, action) {
-    const {path, payload, paginate, optimistic = true} = action;
+    const {path, payload, paginate = {}, optimistic = true} = action;
     let {url, id} = path;
 
     let optimisticTransactionId = uuid.v4();
