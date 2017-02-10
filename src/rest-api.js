@@ -7,14 +7,14 @@ const defaultHeaders = {
   'Content-Type': 'application/json',
 };
 
-export default (baseURL, headers = defaultHeaders) => {
+export default (baseURL, fetchInstance = fetch, headers = defaultHeaders) => {
   const handleErrors = (response) => {
     if (!response.ok) throw new customError(response);
     return response;
   };
 
   const get = (url, params) => {
-    return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
+    return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       headers
     })
     .then(handleErrors)
@@ -22,7 +22,7 @@ export default (baseURL, headers = defaultHeaders) => {
   };
 
   const post = (url, body, params) => {
-    return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
+    return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       headers,
@@ -32,7 +32,7 @@ export default (baseURL, headers = defaultHeaders) => {
   };
 
   const put = (url, body, params) => {
-    return fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
+    return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       headers,
@@ -46,7 +46,7 @@ export default (baseURL, headers = defaultHeaders) => {
     post,
     put,
     delete: (url, body, params) => (
-      fetch(`${baseURL}${url}?${Qs.stringify(params)}`, {
+      fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
         body: JSON.stringify(body),
         headers,
