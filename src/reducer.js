@@ -182,13 +182,14 @@ export const paginateReducer = (reduxConst) => {
           const byKey = groupByKey(key);
 
           const values = state[byKey] ? state[byKey]['groupings'][index] : {ids: []};
+          const existingGroupings = state.groupings ? state.groupings[byKey] : {};
 
           return {
             ...state,
             groupings: {
               ...state.groupings,
               [byKey]: {
-                ...state[byKey],
+                ...existingGroupings,
                 [index]: {...values, ...reducer(values, action)}
               }
             }

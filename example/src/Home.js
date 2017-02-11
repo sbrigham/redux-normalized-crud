@@ -20,6 +20,14 @@ class App extends Component {
         }
       }
     });
+    this.props.loadPosts({
+      paginate: {
+        groupBy: {
+          key: 'user',
+          index: 2
+        }
+      }
+    });
     this.props.loadComments({});
   }
 
