@@ -33,10 +33,11 @@ export const registerEntity = function (config, schema) {
       creators,
       sagas: sagas.init(api),
       entitySelector: entitySelector(key),
-      paginationSelector: paginationSelector(key)
+      paginationSelector: paginationSelector(key),
+      config,
     };
 
-    registeredEntities[key] = registeredEntity
+    registeredEntities[key] = registeredEntity;
     return registeredEntity;
 }
 
@@ -54,7 +55,7 @@ export function combineWithCrudReducers(reducerObjects) {
   let paginationReducers = {};
 
   Object.keys(registeredEntities).forEach(key => {
-    paginationReducers[key] = paginateReducer(registeredEntities[key].constants);
+    paginationReducers[key] = paginateReducer(registeredEntities[key].constants, registeredEntities[key].config.paginationResponseKeys || {});
   });
 
   return combineReducers({

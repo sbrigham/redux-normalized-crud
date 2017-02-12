@@ -52,16 +52,14 @@ export const groupByKey = (key) => {
   return `by${key.charAt(0).toUpperCase() + key.slice(1)}`;
 };
 
-export const paginateReducer = (reduxConst) => {
+export const paginateReducer = (reduxConst, responseKeys) => {
   const reducer = (state = defaultState, action) => {
     const { payload, normalize, response, paginate, optimist, removeEntity } = action;
     let result = [], totalItems = state.totalItems || 0, direction;
 
-    if (payload && 'result' in payload) result = payload.result;
     if (normalize && 'result' in normalize) result = normalize.result;
 
-    if (payload && 'totalItems' in payload) totalItems = payload.totalItems;
-    if (response && 'totalItems' in response) totalItems = response.totalItems;
+    if (response && responseKeys && responseKeys.totalItems) totalItems = response[responseKeys.totalItems];
 
     if (payload && 'direction' in payload) direction = payload.direction;
     if (paginate && 'direction' in paginate) direction = paginate.direction;
