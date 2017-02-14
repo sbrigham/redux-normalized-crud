@@ -23,7 +23,7 @@ export default (baseURL, fetchInstance = null, headers = defaultHeaders) => {
 
   const post = (url, body, params) => {
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
-      method: 'PUT',
+      method: 'POST',
       body: JSON.stringify(body),
       headers,
     })
