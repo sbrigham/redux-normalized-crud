@@ -195,14 +195,16 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
     }
   };
   return {
-    init: function *(api) {
-      if(!api) throw new Error('you must specify an api');
-      yield [
-        takeEvery(constants.LOAD_REQUEST, loadRequest, api),
-        takeEvery(constants.ADD_REQUEST, onAddRequest, api),
-        takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
-        takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api)
-      ];
+    init: function (api) {
+      return function * () {
+        if(!api) throw new Error('you must specify an api');
+        yield [
+          takeEvery(constants.LOAD_REQUEST, loadRequest, api),
+          takeEvery(constants.ADD_REQUEST, onAddRequest, api),
+          takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
+          takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api)
+        ];
+      }
     }
   };
 };
