@@ -1,7 +1,7 @@
 import { uniq } from 'lodash/fp';
 
 export const entitiesReducer = (state = {}, action) => {
-  const { payload, normalize, optimist, removeEntity } = action;
+  const { payload, normalize, meta, removeEntity } = action;
   let entities;
   if (removeEntity && removeEntity.entityName in state && removeEntity.id in state[removeEntity.entityName]) {
     const newEntities = { ...state[removeEntity.entityName] };
@@ -27,8 +27,8 @@ export const entitiesReducer = (state = {}, action) => {
         return a;
       }, {});
       const existingEntities = state[key];
-      if (optimist && optimist.id && normalize.result && normalize.result != optimist.id) {
-        delete existingEntities[optimist.id];
+      if (meta && meta.optimisticTransactionId && normalize.result && normalize.result != meta.optimisticTransactionId) {
+        delete existingEntities[meta.optimisticTransactionId];
       }
 
       acc[key] = { ...existingEntities, ...n };
@@ -54,7 +54,7 @@ export const groupByKey = (key) => {
 
 export const paginateReducer = (reduxConst, responseKeys) => {
   const reducer = (state = defaultState, action) => {
-    const { payload, normalize, response, paginate, optimist, removeEntity } = action;
+    const { payload, normalize, response, paginate, removeEntity , meta} = action;
     let result = [], totalItems = state.totalItems || 0, direction;
 
     if (normalize && 'result' in normalize) result = normalize.result;
@@ -114,8 +114,8 @@ export const paginateReducer = (reduxConst, responseKeys) => {
         if(reset) existingIds = [];
 
         // Swap out the temp "optimistic id" for the actual id
-        if(optimist && optimist.id && existingIds.indexOf(optimist.id) != -1) {
-          const tempIndex = existingIds.indexOf(optimist.id);
+        if(meta && meta.optimisticTransactionId && existingIds.indexOf(meta.optimisticTransactionId) != -1) {
+          const tempIndex = existingIds.indexOf(meta.optimisticTransactionId);
           existingIds[tempIndex] = result;
         } else {
           existingIds = [result, ...existingIds];
@@ -126,7 +126,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
         return Object.assign({}, state, {
           isLoading: false,
           ids: newIds,
-          totalItems: (totalItems ? totalItems : ids.length)
+          totalItems: (totalItems ? totalItems : newIds.length)
         });
       }
       case reduxConst.DELETE_SUCCESS:
