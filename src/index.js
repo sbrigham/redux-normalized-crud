@@ -26,15 +26,16 @@ export const registerEntity = function (config, schema) {
       onServerError,
     });
 
-    const api = createApi(baseUrl, fetchInstance ? fetchInstance : null);
+    const restApi = createApi(baseUrl, fetchInstance ? fetchInstance : null);
 
     const registeredEntity = {
       constants,
       creators,
-      sagas: sagas.init(api),
+      sagas: sagas.init(restApi),
       entitySelector: entitySelector(key),
       paginationSelector: paginationSelector(key),
       config,
+      restApi,
     };
 
     registeredEntities[key] = registeredEntity;
