@@ -57,7 +57,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
     const { payload, normalize, response, paginate, removeEntity , meta} = action;
     let result = [], totalItems = state.totalItems || 0, direction;
 
-    if (normalize && 'result' in normalize) result = normalize.result;
+    if (!removeEntity && normalize && 'result' in normalize) result = normalize.result;
 
     if (response && responseKeys && responseKeys.totalItems) totalItems = response[responseKeys.totalItems];
 
@@ -97,14 +97,18 @@ export const paginateReducer = (reduxConst, responseKeys) => {
         const reset = 'reset' in paginate ? paginate.reset : false;
         let existingIds = [...state.ids];
         if(reset) existingIds = [];
-        let ids = [result, ...existingIds];
+
+        let ids = existingIds;
         if(removeEntity && ids.indexOf(removeEntity.id) != -1) {
           ids.splice(ids.indexOf(removeEntity.id), 1);
+          totalItems = totalItems -1;
+        } else {
+          ids = [result, ...existingIds];
         }
         return Object.assign({}, state, {
           isLoading: false,
           ids,
-          totalItems: (totalItems ? totalItems : ids.length)
+          totalItems: ids.length > totalItems ? ids.length : totalItems
         });
       }
       case reduxConst.ADD_SUCCESS: {
@@ -170,7 +174,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
       case reduxConst.DELETE_SUCCESS:
       case reduxConst.DELETE_FAILURE:
       case reduxConst.OPTIMISTIC_REQUEST:
-        const {groupBy} = paginate;
+        const {groupBy, removeFromGrouping = false} = paginate;
         if(groupBy) {
           if(paginate && !('groupBy' in paginate)) throw new Error(`A groupBy must be specified in the form groupBy: { index: number, key: string}. For action type: ${action.type} `);
           if(paginate.groupBy && !('key' in paginate.groupBy))throw new Error(`A key as a string must be specified in your groupBy. For action type: ${action.type}`);
@@ -181,13 +185,20 @@ export const paginateReducer = (reduxConst, responseKeys) => {
 
           const existingGroupings = state.groupings ? state.groupings[byKey] : {};
           const existingValues = state.groupings ? state['groupings'][byKey][index] : {ids: []};
+          let updatedGroupings = {};
 
+          if (removeFromGrouping && action.payload && action.payload.id > -1) {
+            const { key: keyToRemove, index: indexToRemove } = removeFromGrouping;
+            const valuesToRemove = state.groupings ? state['groupings'][groupByKey(keyToRemove)][indexToRemove] : {ids: []};
+            updatedGroupings[indexToRemove] = reducer(valuesToRemove, {...action, removeEntity: { id: action.payload.id}});
+          }
           return {
             ...state,
             groupings: {
               ...state.groupings,
               [byKey]: {
                 ...existingGroupings,
+                ...updatedGroupings,
                 [index]: {...existingValues, ...reducer(existingValues, action)}
               }
             }

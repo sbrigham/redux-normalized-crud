@@ -111,7 +111,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
               id: optimisticTransactionId
             }
           },
-          path, query, paginate,
+          path, query, paginate, payload,
           normalize: normalizeResponse(payload, schema)
         }))
       }
