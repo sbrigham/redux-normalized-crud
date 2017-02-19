@@ -7,4 +7,5 @@ export const {
   creators,
   paginationSelector,
   entitySelector,
+  sagas,
 } = registerEntity(config, new schema.Entity('posts'));

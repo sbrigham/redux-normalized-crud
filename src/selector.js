@@ -2,8 +2,8 @@ import {createSelector} from 'reselect';
 import {defaultState, groupByKey} from './reducer';
 import {ensureState} from 'redux-optimistic-ui';
 
-const pagination = state => ensureState(state.pagination);
-const entities = state => ensureState(state.entities);
+const pagination = state => ensureState(state.crud);
+const entities = state => ensureState(state.crud);
 
 export const paginationSelector = resourceKey => (grouping = null) => createSelector([pagination], pagination => {
   if (grouping) {

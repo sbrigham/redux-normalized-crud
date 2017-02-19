@@ -61,7 +61,11 @@ export function combineWithCrudReducers(reducerObjects) {
 
   return combineReducers({
     ...reducerObjects,
-    entities: optimistic(entitiesReducer),
-    pagination: optimistic(combineReducers(paginationReducers))
+    crud: optimistic(
+      combineReducers({
+        entities: entitiesReducer,
+        pagination: combineReducers(paginationReducers)
+      })
+    )
   });
 }
