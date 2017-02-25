@@ -44,8 +44,8 @@ export const defaultState = {
   lastQuery: null,
   isLoading: false,
   ids: [],
-  totalItems: 0,
   hasError: false,
+  totalItems: 0,
 };
 
 export const groupByKey = (key) => {
@@ -72,10 +72,13 @@ export const paginateReducer = (reduxConst, responseKeys) => {
       {
         let override = {
           isLoading: true,
-          lastQuery: action.query,
+          lastQuery: action.query ? action.query : null,
           totalItems
         };
-        return Object.assign({}, state, override);
+        return {
+          ...state,
+          ...override
+        };
       }
       case reduxConst.LOAD_SUCCESS:
       {
@@ -184,7 +187,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
           const byKey = groupByKey(key);
 
           const existingGroupings = state.groupings ? state.groupings[byKey] : {};
-          const existingValues = state.groupings ? state['groupings'][byKey][index] : {ids: []};
+          const existingValues = state.groupings && state.groupings[byKey] ? state.groupings[byKey][index] : defaultState;
           let updatedGroupings = {};
 
           if (removeFromGrouping && action.payload && action.payload.id > -1) {
@@ -204,7 +207,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
             }
           };
         } else {
-          const {groupings, ...everythingElse} = state;
+          let {groupings, ...everythingElse} = state;
           everythingElse = {ids: [], ...everythingElse};
           return {
             groupings,

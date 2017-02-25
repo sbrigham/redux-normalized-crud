@@ -1,11 +1,12 @@
 {
   "name": "redux-normalized-crud",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "An attempt to standardize restful calls within a growing redux application",
   "main": "lib/index.js",
   "scripts": {
     "prepublish": "npm run build",
-    "test": "npm run lint",
+    "test": "jest",
+    "test:watch": "npm test -- --watch",
     "lint": "eslint ./",
     "build": "babel src --out-dir lib"
   },
@@ -45,6 +46,7 @@
     "babel-cli": "^6.18.0",
     "babel-core": "^6.20.0",
     "babel-eslint": "^6.1.0",
+    "babel-jest": "^19.0.0",
     "babel-plugin-transform-runtime": "^6.22.0",
     "babel-preset-react-native": "^1.9.0",
     "eslint": "^3.11.1",
@@ -52,6 +54,7 @@
     "eslint-plugin-import": "^1.16.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-prefer-object-spread": "^1.0.0",
-    "eslint-plugin-react": "^6.8.0"
+    "eslint-plugin-react": "^6.8.0",
+    "jest": "^19.0.2"
   }
 }
