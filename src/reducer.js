@@ -110,7 +110,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
         }
         return Object.assign({}, state, {
           isLoading: false,
-          ids,
+          ids: uniq(ids),
           totalItems: ids.length > totalItems ? ids.length : totalItems
         });
       }
@@ -132,7 +132,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
 
         return Object.assign({}, state, {
           isLoading: false,
-          ids: newIds,
+          ids: uniq(newIds),
           totalItems: (totalItems ? totalItems : newIds.length)
         });
       }
