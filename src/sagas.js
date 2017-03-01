@@ -39,7 +39,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
     }
   };
   const onAddRequest = function *(api, action) {
-    const {path, payload, query, paginate = {}, optimistic = true} = action;
+    const {path, payload, query, paginate = {}, optimistic = true, onSuccess} = action;
     let {url} = path;
     let optimisticTransactionId = uuid.v4();
 
@@ -61,7 +61,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
       }
 
       const response = yield call(api.post, url || resourceUrl, payload, query);
-
+      if (onSuccess) onSuccess(response);
       yield put(creators.addSuccess({
         path, query, paginate, response,
         normalize: normalizeResponse(response, schema),
@@ -117,6 +117,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
       }
 
       const response = yield call(api.put, `${url}${id ? '/' + id :''}`, payload, query);
+      if(onSuccess) onSuccess(response);
 
       // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
@@ -145,7 +146,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
     }
   };
   const onDeleteRequest = function *(api, action) {
-    const {path, payload, paginate = {}, optimistic = true} = action;
+    const {path, payload, paginate = {}, optimistic = true, onSuccess} = action;
     let {url, id} = path;
 
     let optimisticTransactionId = uuid.v4();
@@ -165,7 +166,8 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
           }
         }))
       }
-      yield call(api.delete, url, id);
+      const response = yield call(api.delete, url, id);
+      if(onSuccess) onSuccess(response);
       yield put(creators.deleteSuccess({
         path, paginate,
         meta: {
