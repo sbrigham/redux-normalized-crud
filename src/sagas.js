@@ -61,7 +61,6 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
       }
 
       const response = yield call(api.post, url || resourceUrl, payload, query);
-      if (onSuccess) onSuccess(response);
       yield put(creators.addSuccess({
         path, query, paginate, response,
         normalize: normalizeResponse(response, schema),
@@ -73,6 +72,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
           } : null
         }
       }));
+      if (onSuccess) onSuccess(response);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.log(error);
       onServerError(error);
@@ -117,8 +117,6 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
       }
 
       const response = yield call(api.put, `${url}${id ? '/' + id :''}`, payload, query);
-      if(onSuccess) onSuccess(response);
-
       // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
         path, query, paginate, response,
@@ -130,6 +128,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
           } : null
         }
       }));
+      if (onSuccess) onSuccess(response);
     } catch (error) {
       onServerError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
@@ -167,7 +166,6 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
         }))
       }
       const response = yield call(api.delete, url, id);
-      if(onSuccess) onSuccess(response);
       yield put(creators.deleteSuccess({
         path, paginate,
         meta: {
@@ -179,6 +177,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
         },
         normalize: {result: payload}
       }));
+      if (onSuccess) onSuccess(response);
     } catch (error) {
       onServerError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
