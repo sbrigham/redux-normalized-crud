@@ -1,81 +1,93 @@
-import {put, call, takeEvery} from 'redux-saga/effects';
-import {BEGIN, COMMIT, REVERT} from 'redux-optimistic-ui';
+import { put, call, takeEvery } from 'redux-saga/effects';
+import { BEGIN, COMMIT, REVERT } from 'redux-optimistic-ui';
 import uuid from 'uuid';
 
-export default ({constants, creators, schema, normalizeResponse, onLoadRequest, onServerError}) => {
+export default ({
+  constants,
+  creators,
+  schema,
+  normalizeResponse,
+  onLoadRequest,
+  onServerError,
+}) => {
   const resourceUrl = schema._key;
-  const loadRequest = function *(api, action) {
-    const {query, paginate = {}} = action;
-    let {path, onSuccess} = action;
-    path = path || {};
-    let {id, url} = path;
+  const loadRequest = function* (api, action) {
+    const { query, paginate = {}, onError } = action;
+    const { path = {}, onSuccess } = action;
+    const { id, url } = path;
 
     try {
       let response;
       if (id !== undefined) {
-        var promise = new Promise(function(resolve, reject) {
-          resolve(api.get(`${url || resourceUrl}/${id}`, query))
+        const promise = new Promise(function(resolve) {
+          resolve(api.get(`${url || resourceUrl}/${id}`, query));
         });
         onLoadRequest(promise);
         response = yield promise;
       } else {
-        var promise = new Promise(function(resolve, reject) {
-          resolve(api.get(`${url || resourceUrl}`, query))
+        const promise = new Promise(function(resolve) {
+          resolve(api.get(`${url || resourceUrl}`, query));
         });
         onLoadRequest(promise);
         response = yield promise;
       }
-      if(onSuccess) yield put(onSuccess(response));
+      if (onSuccess) yield put(onSuccess(response));
 
       yield put(creators.loadSuccess({
-        response, paginate, path,
+        response,
+        paginate,
+        path,
         normalize: normalizeResponse(response, schema)
       }));
-
     } catch (error) {
+      if (onError) onError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
       onServerError(error);
-      yield put(creators.loadFailure({error, path, paginate}));
+      yield put(creators.loadFailure({ error, path, paginate }));
     }
   };
-  const onAddRequest = function *(api, action) {
-    const {path, payload, query, paginate = {}, optimistic = true, onSuccess} = action;
-    let {url} = path;
-    let optimisticTransactionId = uuid.v4();
+  const onAddRequest = function* (api, action) {
+    const { path, payload, query, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { url } = path;
+    const optimisticTransactionId = uuid.v4();
 
     try {
-      if(optimistic) {
+      if (optimistic) {
         payload.id = optimisticTransactionId;
         yield put(creators.optimisticRequest({
           meta: {
             optimisticTransactionId,
             optimistic: {
               type: BEGIN,
-              id: optimisticTransactionId
-            }
+              id: optimisticTransactionId,
+            },
           },
           paginate,
           payload,
-          normalize: normalizeResponse(payload, schema)
-        }))
+          normalize: normalizeResponse(payload, schema),
+        }));
       }
 
       const response = yield call(api.post, url || resourceUrl, payload, query);
       yield put(creators.addSuccess({
-        path, query, paginate, response,
+        path,
+        query,
+        paginate,
+        response,
         normalize: normalizeResponse(response, schema),
         meta: {
           optimisticTransactionId,
           optimistic: optimistic ? {
             type: COMMIT,
-            id: optimisticTransactionId
-          } : null
-        }
+            id: optimisticTransactionId,
+          } : null,
+        },
       }));
       if (onSuccess) onSuccess(response);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.log(error);
       onServerError(error);
+      if (onError) onError(error);
       yield put(creators.addFailure({
         error,
         path,
@@ -84,53 +96,59 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
           optimisticTransactionId,
           optimistic: optimistic ? {
             type: REVERT,
-            id: optimisticTransactionId
-          } : null
-        }
+            id: optimisticTransactionId,
+          } : null,
+        },
       }));
     }
   };
-  const onUpdateRequest = function *(api, action) {
-    const {path, payload, query, paginate = {}, optimistic = true, onSuccess} = action;
+  const onUpdateRequest = function* (api, action) {
+    const { path, payload, query, paginate = {}, optimistic = true, onSuccess, onError } = action;
 
     if (path === undefined && payload.id === undefined) throw new Error('You need to specify an id for this update request');
 
-    let id = path != undefined ? path.id : payload.id;
-    let url = path != undefined ? path.url : resourceUrl;
-
-    let optimisticTransactionId = uuid.v4();
+    const id = path !== undefined ? path.id : payload.id;
+    const url = path !== undefined ? path.url : resourceUrl;
+    const optimisticTransactionId = uuid.v4();
 
     try {
       // if optimistic try to set the response as if it came back from the server
-      if(optimistic) {
+      if (optimistic) {
         yield put(creators.optimisticRequest({
           meta: {
             optimisticTransactionId,
             optimistic: {
               type: BEGIN,
-              id: optimisticTransactionId
-            }
+              id: optimisticTransactionId,
+            },
           },
-          path, query, paginate, payload,
-          normalize: normalizeResponse(payload, schema)
-        }))
+          path,
+          query,
+          paginate,
+          payload,
+          normalize: normalizeResponse(payload, schema),
+        }));
       }
 
       const response = yield call(api.put, `${url}${id ? '/' + id :''}`, payload, query);
       // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
-        path, query, paginate, response,
+        path,
+        query,
+        paginate,
+        response,
         meta: {
           optimisticTransactionId,
           optimistic: optimistic ? {
             type: COMMIT,
-            id: optimisticTransactionId
-          } : null
-        }
+            id: optimisticTransactionId,
+          } : null,
+        },
       }));
       if (onSuccess) onSuccess(response);
     } catch (error) {
       onServerError(error);
+      if (onError) onError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.updateFailure({
         error,
@@ -138,48 +156,50 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
           optimisticTransactionId,
           optimistic: optimistic ? {
             type: REVERT,
-            id: optimisticTransactionId
-          } : null
-        }
-      }))
+            id: optimisticTransactionId,
+          } : null,
+        },
+      }));
     }
   };
-  const onDeleteRequest = function *(api, action) {
-    const {path, payload, paginate = {}, optimistic = true, onSuccess} = action;
-    let {url, id} = path;
+  const onDeleteRequest = function* (api, action) {
+    const { path, payload, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { url, id } = path;
 
-    let optimisticTransactionId = uuid.v4();
+    const optimisticTransactionId = uuid.v4();
     try {
-      if(optimistic) {
+      if (optimistic) {
         yield put(creators.optimisticRequest({
           meta: {
             optimisticTransactionId,
             optimistic: {
               type: BEGIN,
-              id: optimisticTransactionId
-            }
+              id: optimisticTransactionId,
+            },
           },
           removeEntity: {
             id: path.id,
-            entityName: resourceUrl
-          }
-        }))
+            entityName: resourceUrl,
+          },
+        }));
       }
       const response = yield call(api.delete, url, id);
       yield put(creators.deleteSuccess({
-        path, paginate,
+        path,
+        paginate,
         meta: {
           optimisticTransactionId,
           optimistic: optimistic ? {
             type: COMMIT,
-            id: optimisticTransactionId
-          } : null
+            id: optimisticTransactionId,
+          } : null,
         },
-        normalize: {result: payload}
+        normalize: { result: payload },
       }));
       if (onSuccess) onSuccess(response);
     } catch (error) {
       onServerError(error);
+      if (onError) onError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.deleteFailure({
         error,
@@ -189,23 +209,23 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
           optimisticTransactionId,
           optimistic: optimistic ? {
             type: REVERT,
-            id: optimisticTransactionId
-          } : null
-        }
+            id: optimisticTransactionId,
+          } : null,
+        },
       }));
     }
   };
   return {
     init: function (api) {
-      return function * () {
-        if(!api) throw new Error('you must specify an api');
+      return function* () {
+        if (!api) throw new Error('you must specify an api');
         yield [
           takeEvery(constants.LOAD_REQUEST, loadRequest, api),
           takeEvery(constants.ADD_REQUEST, onAddRequest, api),
           takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
-          takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api)
+          takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api),
         ];
-      }
-    }
+      };
+    },
   };
 };

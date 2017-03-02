@@ -1,5 +1,5 @@
 import { optimistic } from 'redux-optimistic-ui';
-import { combineReducers, compose } from 'redux';
+import { combineReducers } from 'redux';
 import genCreators from './action-creators';
 import genConstants from './constants';
 import genSagas from './sagas';
@@ -9,37 +9,48 @@ import { paginationSelector, entitySelector } from './selector';
 
 const registeredEntities = {};
 
-export const registerEntity = function (config, schema) {
-    const { baseUrl, normalizeResponse, onLoadRequest = () => {}, onServerError = () => {}, fetchInstance } = config;
-    if (!baseUrl) throw new Error('The baseUrl property needs to be defined in the config object.');
-    if (!normalizeResponse) throw new Error('A normalizeResponse property needs to be defined in the config object');
+export function registerEntity(config, schema) {
+  const {
+    baseUrl,
+    normalizeResponse,
+    onLoadRequest = () => { },
+    onServerError = () => { },
+    fetchInstance = fetch,
+    fetchConfig = {},
+  } = config;
+  if (!baseUrl) throw new Error('The baseUrl property needs to be defined in the config object.');
+  if (!normalizeResponse) throw new Error('A normalizeResponse property needs to be defined in the config object');
 
-    const key = schema._key;
-    const constants = genConstants(key);
-    const creators = genCreators(constants);
-    const sagas = genSagas({
-      constants,
-      creators,
-      schema,
-      normalizeResponse,
-      onLoadRequest,
-      onServerError,
-    });
+  const key = schema._key;
+  const constants = genConstants(key);
+  const creators = genCreators(constants);
+  const sagas = genSagas({
+    constants,
+    creators,
+    schema,
+    normalizeResponse,
+    onLoadRequest,
+    onServerError,
+  });
 
-    const restApi = createApi(baseUrl, fetchInstance ? fetchInstance : null);
+  const restApi = createApi(
+    baseUrl,
+    fetchInstance,
+    fetchConfig
+  );
 
-    const registeredEntity = {
-      constants,
-      creators,
-      sagas: sagas.init(restApi),
-      entitySelector: entitySelector(key),
-      paginationSelector: paginationSelector(key),
-      config,
-      restApi,
-    };
+  const registeredEntity = {
+    constants,
+    creators,
+    sagas: sagas.init(restApi),
+    entitySelector: entitySelector(key),
+    paginationSelector: paginationSelector(key),
+    config,
+    restApi,
+  };
 
-    registeredEntities[key] = registeredEntity;
-    return registeredEntity;
+  registeredEntities[key] = registeredEntity;
+  return registeredEntity;
 }
 
 export function getCrudSagas() {

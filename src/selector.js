@@ -9,7 +9,7 @@ export const paginationSelector = resourceKey => (grouping = null) => createSele
   if (grouping) {
     const { key, index } = grouping;
     const byKey = groupByKey(key);
-    if (pagination[resourceKey]['groupings'] != null && pagination[resourceKey]['groupings'][byKey] != undefined && pagination[resourceKey]['groupings'][byKey][index] !== undefined) {
+    if (pagination[resourceKey]['groupings'] != null && pagination[resourceKey]['groupings'][byKey] !== undefined && pagination[resourceKey]['groupings'][byKey][index] !== undefined) {
       return pagination[resourceKey]['groupings'][byKey][index];
     }
   }
