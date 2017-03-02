@@ -1,5 +1,5 @@
 import Qs from 'qs';
-import customError from './errors'
+import CustomError from './errors'
 
 const defaultHeaders = {
   'Cache-Control': 'no-cache',
@@ -9,13 +9,13 @@ const defaultHeaders = {
 export default (baseURL, fetchInstance = null, headers = defaultHeaders) => {
   fetchInstance = fetchInstance || fetch;
   const handleErrors = (response) => {
-    if (!response.ok) throw new customError(response);
+    if (!response.ok) throw new CustomError(response);
     return response;
   };
 
   const get = (url, params) => {
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
-      headers
+      headers,
     })
     .then(handleErrors)
     .then(response => response.json());
