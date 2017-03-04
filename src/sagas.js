@@ -145,7 +145,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
     }
   };
   const onDeleteRequest = function *(api, action) {
-    const {path, payload, paginate = {}, optimistic = true, onSuccess} = action;
+    const {path, payload = {}, query = {}, paginate = {}, optimistic = true, onSuccess} = action;
     let {url, id} = path;
 
     let optimisticTransactionId = uuid.v4();
@@ -165,7 +165,7 @@ export default ({constants, creators, schema, normalizeResponse, onLoadRequest, 
           }
         }))
       }
-      const response = yield call(api.delete, url, id);
+      const response = yield call(api.delete, url, payload, query);
       yield put(creators.deleteSuccess({
         path, paginate,
         meta: {
