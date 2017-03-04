@@ -54,8 +54,10 @@ export const groupByKey = (key) => {
 
 export const paginateReducer = (reduxConst, responseKeys) => {
   const reducer = (state = defaultState, action) => {
-    const { payload, normalize, response, paginate, removeEntity , meta} = action;
-    let result = [], totalItems = state.totalItems || 0, direction;
+    const { payload, normalize, response, paginate, removeEntity, meta } = action;
+    let result = [];
+    let totalItems = state.totalItems || 0;
+    let direction = null;
 
     if (!removeEntity && normalize && 'result' in normalize) result = normalize.result;
 
@@ -68,60 +70,58 @@ export const paginateReducer = (reduxConst, responseKeys) => {
       case reduxConst.LOAD_REQUEST:
       case reduxConst.ADD_REQUEST:
       case reduxConst.UPDATE_REQUEST:
-      case reduxConst.DELETE_REQUEST:
-      {
-        let override = {
+      case reduxConst.DELETE_REQUEST: {
+        const override = {
           isLoading: true,
           lastQuery: action.query ? action.query : null,
-          totalItems
+          totalItems,
         };
         return {
           ...state,
-          ...override
+          ...override,
         };
       }
-      case reduxConst.LOAD_SUCCESS:
-      {
+      case reduxConst.LOAD_SUCCESS: {
         const newIDs = result !== null && Array.isArray(result) ? result : [result];
         const isNext = direction === 'next';
 
         const reset = 'reset' in paginate ? paginate.reset : false;
         let existingIds = [...state.ids];
-        if(reset) existingIds = [];
+        if (reset) existingIds = [];
 
-        let ids = isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
+        const ids = isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
         return Object.assign({}, state, {
           isLoading: false,
           ids: uniq(ids),
-          totalItems: (totalItems ? totalItems : ids.length)
+          totalItems: (totalItems ? totalItems : ids.length),
         });
       }
       case reduxConst.OPTIMISTIC_REQUEST: {
         const reset = 'reset' in paginate ? paginate.reset : false;
         let existingIds = [...state.ids];
-        if(reset) existingIds = [];
+        if (reset) existingIds = [];
 
         let ids = existingIds;
-        if(removeEntity && ids.indexOf(removeEntity.id) != -1) {
+        if (removeEntity && ids.indexOf(removeEntity.id) !== -1) {
           ids.splice(ids.indexOf(removeEntity.id), 1);
-          totalItems = totalItems -1;
+          totalItems = totalItems - 1;
         } else {
           ids = [result, ...existingIds];
         }
         return Object.assign({}, state, {
           isLoading: false,
           ids: uniq(ids),
-          totalItems: ids.length > totalItems ? ids.length : totalItems
+          totalItems: ids.length > totalItems ? ids.length : totalItems,
         });
       }
       case reduxConst.ADD_SUCCESS: {
         const reset = 'reset' in paginate ? paginate.reset : false;
         let existingIds = [...state.ids];
         let newIds = [];
-        if(reset) existingIds = [];
+        if (reset) existingIds = [];
 
         // Swap out the temp "optimistic id" for the actual id
-        if(meta && meta.optimisticTransactionId && existingIds.indexOf(meta.optimisticTransactionId) != -1) {
+        if (meta && meta.optimisticTransactionId && existingIds.indexOf(meta.optimisticTransactionId) !== -1) {
           const tempIndex = existingIds.indexOf(meta.optimisticTransactionId);
           existingIds[tempIndex] = result;
         } else {
@@ -133,11 +133,10 @@ export const paginateReducer = (reduxConst, responseKeys) => {
         return Object.assign({}, state, {
           isLoading: false,
           ids: uniq(newIds),
-          totalItems: (totalItems ? totalItems : newIds.length)
+          totalItems: (totalItems ? totalItems : newIds.length),
         });
       }
-      case reduxConst.DELETE_SUCCESS:
-      {
+      case reduxConst.DELETE_SUCCESS: {
         const ids = state.ids.filter(id => id !== result);
         return Object.assign({}, state, {
           isLoading: false,
@@ -152,16 +151,16 @@ export const paginateReducer = (reduxConst, responseKeys) => {
       case reduxConst.DELETE_FAILURE:
         return Object.assign({}, state, {
           isLoading: false,
-          hasError: true
+          hasError: true,
         });
       default:
         return state;
     }
   };
 
-  return (state = {groupings: null}, action) => {
-    const {paginate = false} = action;
-    if(paginate === false) return state;
+  return (state = { groupings: null }, action) => {
+    const { paginate = false } = action;
+    if (paginate === false) return state;
 
     switch (action.type) {
       case reduxConst.LOAD_REQUEST:
@@ -176,24 +175,24 @@ export const paginateReducer = (reduxConst, responseKeys) => {
       case reduxConst.DELETE_REQUEST:
       case reduxConst.DELETE_SUCCESS:
       case reduxConst.DELETE_FAILURE:
-      case reduxConst.OPTIMISTIC_REQUEST:
-        const {groupBy, removeFromGrouping = false} = paginate;
-        if(groupBy) {
-          if(paginate && !('groupBy' in paginate)) throw new Error(`A groupBy must be specified in the form groupBy: { index: number, key: string}. For action type: ${action.type} `);
-          if(paginate.groupBy && !('key' in paginate.groupBy))throw new Error(`A key as a string must be specified in your groupBy. For action type: ${action.type}`);
-          if(paginate.groupBy && !('index' in paginate.groupBy))throw new Error(`An index as an int/string must be specified in your groupBy. For action type: ${action.type}`);
+      case reduxConst.OPTIMISTIC_REQUEST: {
+        const { groupBy, removeFromGrouping = false } = paginate;
+        if (groupBy) {
+          if (paginate && !('groupBy' in paginate)) throw new Error(`A groupBy must be specified in the form groupBy: { index: number, key: string}. For action type: ${action.type} `);
+          if (paginate.groupBy && !('key' in paginate.groupBy)) throw new Error(`A key as a string must be specified in your groupBy. For action type: ${action.type}`);
+          if (paginate.groupBy && !('index' in paginate.groupBy)) throw new Error(`An index as an int/string must be specified in your groupBy. For action type: ${action.type}`);
 
-          const {key, index} = groupBy;
+          const { key, index } = groupBy;
           const byKey = groupByKey(key);
 
           const existingGroupings = state.groupings ? state.groupings[byKey] : {};
           const existingValues = state.groupings && state.groupings[byKey] ? state.groupings[byKey][index] : defaultState;
-          let updatedGroupings = {};
+          const updatedGroupings = {};
 
           if (removeFromGrouping && action.payload && action.payload.id > -1) {
             const { key: keyToRemove, index: indexToRemove } = removeFromGrouping;
-            const valuesToRemove = state.groupings ? state['groupings'][groupByKey(keyToRemove)][indexToRemove] : {ids: []};
-            updatedGroupings[indexToRemove] = reducer(valuesToRemove, {...action, removeEntity: { id: action.payload.id}});
+            const valuesToRemove = state.groupings ? state.groupings[groupByKey(keyToRemove)][indexToRemove] : { ids: [] };
+            updatedGroupings[indexToRemove] = reducer(valuesToRemove, { ...action, removeEntity: { id: action.payload.id } });
           }
           return {
             ...state,
@@ -202,18 +201,18 @@ export const paginateReducer = (reduxConst, responseKeys) => {
               [byKey]: {
                 ...existingGroupings,
                 ...updatedGroupings,
-                [index]: {...existingValues, ...reducer(existingValues, action)}
-              }
-            }
+                [index]: { ...existingValues, ...reducer(existingValues, action) },
+              },
+            },
           };
-        } else {
-          let {groupings, ...everythingElse} = state;
-          everythingElse = {ids: [], ...everythingElse};
-          return {
-            groupings,
-            ...reducer(everythingElse, action)
-          }
         }
+        let { groupings, ...everythingElse } = state;
+        everythingElse = { ids: [], ...everythingElse };
+        return {
+          groupings,
+          ...reducer(everythingElse, action),
+        };
+      }
       default:
         return state;
     }

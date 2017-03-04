@@ -1,21 +1,25 @@
 import Qs from 'qs';
-import customError from './errors'
+import CustomError from './errors';
 
 const defaultHeaders = {
   'Cache-Control': 'no-cache',
   Accept: 'application/json',
   'Content-Type': 'application/json',
 };
-export default (baseURL, fetchInstance = null, headers = defaultHeaders) => {
-  fetchInstance = fetchInstance || fetch;
+export default (baseURL, fetchInstance, config = {}) => {
+  const headers = config.headers;
   const handleErrors = (response) => {
-    if (!response.ok) throw new customError(response);
+    if (!response.ok) throw new CustomError(response);
     return response;
   };
 
   const get = (url, params) => {
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
-      headers
+      ...config,
+      headers: {
+        ...defaultHeaders,
+        ...headers,
+      },
     })
     .then(handleErrors)
     .then(response => response.json());
@@ -25,7 +29,11 @@ export default (baseURL, fetchInstance = null, headers = defaultHeaders) => {
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'POST',
       body: JSON.stringify(body),
-      headers,
+      ...config,
+      headers: {
+        ...defaultHeaders,
+        ...headers,
+      },
     })
     .then(handleErrors)
     .then(response => response.json());
@@ -35,7 +43,11 @@ export default (baseURL, fetchInstance = null, headers = defaultHeaders) => {
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       body: JSON.stringify(body),
-      headers,
+      ...config,
+      headers: {
+        ...defaultHeaders,
+        ...headers,
+      },
     })
     .then(handleErrors)
     .then(response => response.json());
@@ -49,10 +61,14 @@ export default (baseURL, fetchInstance = null, headers = defaultHeaders) => {
       fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
         body: JSON.stringify(body),
-        headers,
+        ...config,
+        headers: {
+          ...defaultHeaders,
+          ...headers,
+        },
       })
       .then(handleErrors)
       .then(response => response.json())
     ),
-  }
-}
+  };
+};
