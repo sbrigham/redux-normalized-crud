@@ -92,15 +92,15 @@ Note: This can be defined on for every resource in your system or you could defi
   import config  from './config';
   
   // Use normalizr here to create your entity
-  const userEntity = new schema.Entity('POSTS');
+  const postEntity = new schema.Entity('POSTS');
   
   export const {
     sagas, // All crud actions for a given entity (this gets registered with your redux-saga)
-    constants, // An object full of user constants that contain all of the crud actions
-    creators, // An object full of all the action creators for the user entity
-    entitySelector, // A helpful selector that is ready to key off the user entities
+    constants, // An object full of post constants that contain all of the crud actions
+    creators, // An object full of all the action creators for the post entity
+    entitySelector, // A helpful selector that is ready to key off the post entities
     paginationSelector, // Another helpful selector ready to key off of your defined paged lists
-  } = registerEntity(config, userEntity);
+  } = registerEntity(config, postEntity);
 ~~~
 
 #### Register the sagas and enhance your reducer
@@ -109,7 +109,7 @@ Note: This can be defined on for every resource in your system or you could defi
   import { createStore, applyMiddleware, compose } from 'redux';
   import createSagaMiddleware from 'redux-saga';
   import { combineWithCrudReducers } from 'redux-normalized-crud';
-  import { sagas as postCrudSagas } from './user';
+  import { sagas as postCrudSagas } from './post';
   
   // SAGAS
   const mySaga = function* () {
@@ -149,55 +149,56 @@ Note: This can be defined on for every resource in your system or you could defi
 import React, {  PropTypes } from 'react'
 import { connect } from 'react-redux';
 import {
-  creators as UserCrudActions,
-  entitySelector as userSelector,
-  paginationSelector as pagedUsers
+  creators as PostCrudActions,
+  entitySelector as postSelector,
+  paginationSelector as pagedPosts
 } from './post-redux';
 
-class UserList extends React.Component {
+class PostList extends React.Component {
   componentWillMount() {
-    const { loadUsers } = this.props;
-    loadUsers({
-      path: {
-        url: 'users'
-      }
-    });
+    const { loadPosts } = this.props;
+    loadPosts({});
   }
 
   render() {
-    const { users, loading } = this.props;
+    const { posts, loading } = this.props;
 
     if(loading) return <div> Loading... </div>;
 
     return (
       <div>
-        Users:
-        {
-          users.map(u => <div> {u.name} </div>)
-        }
+       {
+        posts.map(p => (
+          <div key={p.id}>
+            <Link to={`/post/${p.id}`}>
+              {p.title}
+            </Link>
+          </div>
+        )
+        )}
       </div>
     )
   }
 }
 
-UserList.propTypes = {
-  users: PropTypes.arrayOf({
+PostList.propTypes = {
+  posts: PropTypes.arrayOf({
     name: PropTypes.string
   })
 };
 
 export default connect(state => {
-  const pagedData = pagedUsers()(state);
-  const users = pagedData.ids.map(id => userSelector(id)(state));
-  return { users, loading: pagedData.isLoading }
+  const pagedData = pagedPosts()(state);
+  const posts = pagedData.ids.map(id => postSelector(id)(state));
+  return { posts, loading: pagedData.isLoading }
 }, 
 {
-  loadUsers: UserCrudActions.loadRequest
-})(UserList);
+  loadPosts: PostCrudActions.loadRequest
+})(PostList);
 
   
 ~~~
 
 ##### Your State will now look like:
 
-![redux store example](http://imgur.com/f5IbOjM)
+![redux store example](http://i.imgur.com/f5IbOjM.png)
