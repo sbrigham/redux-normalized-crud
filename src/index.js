@@ -40,6 +40,7 @@ export function registerEntity(config, schema) {
   );
 
   const registeredEntity = {
+    key,
     constants,
     creators,
     sagas: sagas.init(restApi),
@@ -52,6 +53,8 @@ export function registerEntity(config, schema) {
   registeredEntities[key] = registeredEntity;
   return registeredEntity;
 }
+
+export { paginationSelector } from './selector';
 
 export function getCrudSagas() {
   const registeredSagas = [];
