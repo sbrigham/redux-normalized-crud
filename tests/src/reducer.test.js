@@ -11,9 +11,9 @@ describe('Pagination Reducer', () => {
       paginate: {
         groupBy: {
           key: 'status',
-          index: 'pending'
-        }
-      }
+          index: 'pending',
+        },
+      },
     };
 
     const secondAction = {
@@ -21,9 +21,9 @@ describe('Pagination Reducer', () => {
       paginate: {
         groupBy: {
           key: 'status',
-          index: 'accepted'
-        }
-      }
+          index: 'accepted',
+        },
+      },
     };
 
     const nextState = reducer({ }, firstAction);
@@ -36,10 +36,12 @@ describe('Pagination Reducer', () => {
           pending: {
             ...defaultState,
             isLoading: true,
+            hasMadeRequest: true,
           },
           accepted: {
             ...defaultState,
             isLoading: true,
+            hasMadeRequest: true,
           }
         }
       }
@@ -65,9 +67,9 @@ describe('Pagination Reducer', () => {
       paginate: {
         groupBy: {
           key: 'user',
-          index: '1'
-        }
-      }
+          index: '1',
+        },
+      },
     };
 
     const nextState = reducer({ }, firstAction);
@@ -80,15 +82,30 @@ describe('Pagination Reducer', () => {
           pending: {
             ...defaultState,
             isLoading: true,
+            hasMadeRequest: true,
           },
         },
         byUser: {
           1: {
             ...defaultState,
             isLoading: true,
+            hasMadeRequest: true,
           }
         }
       }
     })
+  })
+
+  it('Sets has made request after a load request', () => {
+    const constants = genConstants('events');
+    const reducer = paginateReducer(constants);
+
+    const firstAction = {
+      type: constants.LOAD_REQUEST,
+      paginate: {},
+    };
+
+    const nextState = reducer({ }, firstAction);
+    expect(nextState.hasMadeRequest).toBe(true);
   })
 });

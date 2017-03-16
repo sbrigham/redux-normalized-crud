@@ -42,6 +42,7 @@ export const entitiesReducer = (state = {}, action) => {
 
 export const defaultState = {
   lastQuery: null,
+  hasMadeRequest: false,
   isLoading: false,
   ids: [],
   hasError: false,
@@ -73,6 +74,7 @@ export const paginateReducer = (reduxConst, responseKeys) => {
       case reduxConst.DELETE_REQUEST: {
         const override = {
           isLoading: true,
+          hasMadeRequest: true,
           lastQuery: action.query ? action.query : null,
           totalItems,
         };
