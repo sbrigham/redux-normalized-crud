@@ -6,6 +6,8 @@ const pagination = state => ensureState(state.crud).pagination;
 const entities = state => ensureState(state.crud).entities;
 
 export const paginationSelector = resourceKey => (grouping = null) => createSelector([pagination], pagination => {
+  if (!pagination[resourceKey]) return defaultState;
+
   if (grouping) {
     const { key, index } = grouping;
     const byKey = groupByKey(key);
