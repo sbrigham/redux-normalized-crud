@@ -1,10 +1,11 @@
-import { put, call, takeEvery } from 'redux-saga/effects';
+import { select, put, call, takeEvery } from 'redux-saga/effects';
 import { BEGIN, COMMIT, REVERT } from 'redux-optimistic-ui';
 import uuid from 'uuid';
 
 export default ({
   constants,
   creators,
+  fetchConfigSelector,
   schema,
   normalizeResponse,
   onLoadRequest,
@@ -16,17 +17,20 @@ export default ({
     const { path = {}, onSuccess } = action;
     const { id, url } = path;
 
+    let fetchConfig = {};
+    if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
+
     try {
       let response;
       if (id !== undefined) {
-        const promise = new Promise(function(resolve) {
-          resolve(api.get(`${url || resourceUrl}/${id}`, query));
+        const promise = new Promise((resolve) => {
+          resolve(api.get(`${url || resourceUrl}/${id}`, query, fetchConfig));
         });
         onLoadRequest(promise);
         response = yield promise;
       } else {
-        const promise = new Promise(function(resolve) {
-          resolve(api.get(`${url || resourceUrl}`, query));
+        const promise = new Promise((resolve) => {
+          resolve(api.get(`${url || resourceUrl}`, query, fetchConfig));
         });
         onLoadRequest(promise);
         response = yield promise;
@@ -37,7 +41,7 @@ export default ({
         response,
         paginate,
         path,
-        normalize: normalizeResponse(response, schema)
+        normalize: normalizeResponse(response, schema),
       }));
     } catch (error) {
       if (onError) onError(error);
@@ -50,6 +54,8 @@ export default ({
     const { path, payload, query, paginate = {}, optimistic = true, onSuccess, onError } = action;
     const { url } = path;
     const optimisticTransactionId = uuid.v4();
+    let fetchConfig = {};
+    if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
     try {
       if (optimistic) {
@@ -68,7 +74,7 @@ export default ({
         }));
       }
 
-      const response = yield call(api.post, url || resourceUrl, payload, query);
+      const response = yield call(api.post, url || resourceUrl, payload, query, fetchConfig);
       yield put(creators.addSuccess({
         path,
         query,
@@ -110,6 +116,8 @@ export default ({
     const id = path !== undefined ? path.id : payload.id;
     const url = path !== undefined ? path.url : resourceUrl;
     const optimisticTransactionId = uuid.v4();
+    let fetchConfig = {};
+    if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
     try {
       // if optimistic try to set the response as if it came back from the server
@@ -130,7 +138,7 @@ export default ({
         }));
       }
 
-      const response = yield call(api.put, `${url}${id ? '/' + id :''}`, payload, query);
+      const response = yield call(api.put, `${url}${id ? `/${id}` : ''}`, payload, query, fetchConfig);
       // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
         path,
@@ -163,8 +171,10 @@ export default ({
     }
   };
   const onDeleteRequest = function* (api, action) {
-    const {path, payload = {}, query = {}, paginate = {}, optimistic = true, onSuccess} = action;
-    let {url, id} = path;
+    const { path, payload = {}, query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { url, id } = path;
+    let fetchConfig = {};
+    if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
     const optimisticTransactionId = uuid.v4();
     try {
@@ -183,7 +193,7 @@ export default ({
           },
         }));
       }
-      const response = yield call(api.delete, url, payload, query);
+      const response = yield call(api.delete, url, payload, query, fetchConfig);
       yield put(creators.deleteSuccess({
         path,
         paginate,
