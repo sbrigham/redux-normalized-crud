@@ -15,7 +15,6 @@ export function registerEntity(config, schema) {
     normalizeResponse,
     onLoadRequest = () => { },
     onServerError = () => { },
-    fetchInstance = fetch,
     fetchConfig = {},
   } = config;
   if (!baseUrl) throw new Error('The baseUrl property needs to be defined in the config object.');
@@ -27,6 +26,7 @@ export function registerEntity(config, schema) {
   const sagas = genSagas({
     constants,
     creators,
+    fetchConfigSelector: fetchConfig.configSelector,
     schema,
     normalizeResponse,
     onLoadRequest,
@@ -35,8 +35,7 @@ export function registerEntity(config, schema) {
 
   const restApi = createApi(
     baseUrl,
-    fetchInstance,
-    fetchConfig
+    fetchConfig.instance ? fetchConfig.instance : fetch,
   );
 
   const registeredEntity = {

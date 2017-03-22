@@ -6,47 +6,50 @@ const defaultHeaders = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
 };
-export default (baseURL, fetchInstance, config = {}) => {
-  const headers = config.headers;
+
+export default (baseURL, fetchInstance) => {
   const handleErrors = (response) => {
     if (!response.ok) throw new CustomError(response);
     return response;
   };
 
-  const get = (url, params) => {
+  const get = (url, params, config = {}) => {
+    const overrideHeaders = config.headers || {};
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       ...config,
       headers: {
         ...defaultHeaders,
-        ...headers,
+        ...overrideHeaders,
       },
     })
     .then(handleErrors)
     .then(response => response.json());
   };
 
-  const post = (url, body, params) => {
+  const post = (url, body, params, config = {}) => {
+    const overrideHeaders = config.headers || {};
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'POST',
       body: JSON.stringify(body),
       ...config,
       headers: {
         ...defaultHeaders,
-        ...headers,
+        ...overrideHeaders,
       },
     })
     .then(handleErrors)
     .then(response => response.json());
   };
 
-  const put = (url, body, params) => {
+  const put = (url, body, params, config = {}) => {
+    const overrideHeaders = config.headers || {};
     return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       ...config,
       headers: {
         ...defaultHeaders,
-        ...headers,
+        ...overrideHeaders,
       },
     })
     .then(handleErrors)
@@ -57,18 +60,19 @@ export default (baseURL, fetchInstance, config = {}) => {
     get,
     post,
     put,
-    delete: (url, body, params) => (
+    delete: (url, body, params, config = {}) => {
+      const overrideHeaders = config.headers || {};
       fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
         body: JSON.stringify(body),
         ...config,
         headers: {
           ...defaultHeaders,
-          ...headers,
+          ...overrideHeaders,
         },
       })
       .then(handleErrors)
-      .then(response => response.json())
-    ),
+      .then(response => response.json());
+    },
   };
 };
