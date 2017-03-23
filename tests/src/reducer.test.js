@@ -42,10 +42,10 @@ describe('Pagination Reducer', () => {
             ...defaultState,
             isLoading: true,
             hasMadeRequest: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
   });
 
   it('Allows for multiple groupings of different keys', () => {
@@ -94,7 +94,7 @@ describe('Pagination Reducer', () => {
         }
       }
     })
-  })
+  });
 
   it('Sets has made request after a load request', () => {
     const constants = genConstants('events');
@@ -107,5 +107,23 @@ describe('Pagination Reducer', () => {
 
     const nextState = reducer({ }, firstAction);
     expect(nextState.hasMadeRequest).toBe(true);
-  })
+  });
+
+  it('Does not paginate a response if it is not an array', () => {
+    const constants = genConstants('events');
+    const reducer = paginateReducer(constants);
+
+    const action = {
+      type: constants.LOAD_SUCCESS,
+      paginate: {},
+      normalize: {
+        result: {
+          id: 1,
+          name: 'Test Event',
+        },
+      },
+    };
+    const nextState = reducer({ }, action);
+    expect(nextState.totalItems).toBeUndefined();
+  });
 });

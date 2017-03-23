@@ -84,6 +84,8 @@ export const paginateReducer = (reduxConst, responseKeys) => {
         };
       }
       case reduxConst.LOAD_SUCCESS: {
+        if (!Array.isArray(result)) return state;
+
         const newIDs = result !== null && Array.isArray(result) ? result : [result];
         const isNext = direction === 'next';
 
