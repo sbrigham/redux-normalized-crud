@@ -1,5 +1,7 @@
 # redux-normalized-crud
 
+## Please note: This is still in beta while I work out an api
+
 [![npm version](https://img.shields.io/npm/v/redux-normalized-crud.svg)](https://www.npmjs.com/package/redux-normalized-crud)
 
 An attempt to standardize RESTful calls and responses within a growing redux application. 

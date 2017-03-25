@@ -7,15 +7,20 @@ const defaultHeaders = {
   'Content-Type': 'application/json',
 };
 
-export default (baseURL, fetchInstance) => {
+export default (base) => {
+  let baseUrl = base || '/';
   const handleErrors = (response) => {
     if (!response.ok) throw new CustomError(response);
     return response;
   };
 
+  const setBaseUrl = (newBaseUrl) => {
+    baseUrl = newBaseUrl;
+  };
+
   const get = (url, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
+    return fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
       ...config,
       headers: {
         ...defaultHeaders,
@@ -28,7 +33,7 @@ export default (baseURL, fetchInstance) => {
 
   const post = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
+    return fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
       method: 'POST',
       body: JSON.stringify(body),
       ...config,
@@ -43,7 +48,7 @@ export default (baseURL, fetchInstance) => {
 
   const put = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
+    return fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       ...config,
@@ -62,7 +67,7 @@ export default (baseURL, fetchInstance) => {
     put,
     delete: (url, body, params, config = {}) => {
       const overrideHeaders = config.headers || {};
-      fetchInstance(`${baseURL}${url}?${Qs.stringify(params)}`, {
+      fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
         body: JSON.stringify(body),
         ...config,
@@ -74,5 +79,6 @@ export default (baseURL, fetchInstance) => {
       .then(handleErrors)
       .then(response => response.json());
     },
+    setBaseUrl,
   };
 };

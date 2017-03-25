@@ -7,17 +7,23 @@ import createApi from './rest-api';
 import { paginateReducer, entitiesReducer } from './reducer';
 import { paginationSelector, entitySelector } from './selector';
 
+require('isomorphic-fetch');
+
 const registeredEntities = {};
+
+const restApi = createApi('/');
+
+export function setBaseUrl(baseUrl) {
+  restApi.setBaseUrl(baseUrl);
+}
 
 export function registerEntity(config, schema) {
   const {
-    baseUrl,
     normalizeResponse,
     onLoadRequest = () => { },
     onServerError = () => { },
-    fetchConfig = {},
+    fetchConfigSelector = null,
   } = config;
-  if (!baseUrl) throw new Error('The baseUrl property needs to be defined in the config object.');
   if (!normalizeResponse) throw new Error('A normalizeResponse property needs to be defined in the config object');
 
   const key = schema._key;
@@ -26,17 +32,12 @@ export function registerEntity(config, schema) {
   const sagas = genSagas({
     constants,
     creators,
-    fetchConfigSelector: fetchConfig.configSelector,
+    fetchConfigSelector,
     schema,
     normalizeResponse,
     onLoadRequest,
     onServerError,
   });
-
-  const restApi = createApi(
-    baseUrl,
-    fetchConfig.instance ? fetchConfig.instance : fetch,
-  );
 
   const registeredEntity = {
     key,
