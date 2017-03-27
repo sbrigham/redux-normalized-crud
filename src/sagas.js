@@ -13,7 +13,7 @@ export default ({
 }) => {
   const resourceUrl = schema._key;
   const loadRequest = function* (api, action) {
-    const { query, paginate = {}, onError } = action;
+    const { query, paginate = {}, onError, deferLoadRequest = false } = action;
     const { path = {}, onSuccess } = action;
     const { id, url } = path;
 
@@ -26,13 +26,13 @@ export default ({
         const promise = new Promise((resolve) => {
           resolve(api.get(`${url || resourceUrl}/${id}`, query, fetchConfig));
         });
-        onLoadRequest(promise);
+        if (!deferLoadRequest) onLoadRequest(promise);
         response = yield promise;
       } else {
         const promise = new Promise((resolve) => {
           resolve(api.get(`${url || resourceUrl}`, query, fetchConfig));
         });
-        onLoadRequest(promise);
+        if (!deferLoadRequest) onLoadRequest(promise);
         response = yield promise;
       }
       if (onSuccess) yield put(onSuccess(response));
