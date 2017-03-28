@@ -7,7 +7,7 @@ export default ({
   creators,
   fetchConfigSelector,
   schema,
-  normalizeResponse,
+  handleResponse,
   onLoadRequest,
   onServerError,
 }) => {
@@ -37,11 +37,16 @@ export default ({
       }
       if (onSuccess) yield put(onSuccess(response));
 
+      const { normalize, totalItems = null } = handleResponse(response, schema);
+
       yield put(creators.loadSuccess({
         response,
         paginate,
         path,
-        normalize: normalizeResponse(response, schema),
+        normalize,
+        meta: {
+          totalItems,
+        },
       }));
     } catch (error) {
       if (onError) onError(error);
@@ -59,6 +64,8 @@ export default ({
 
     try {
       if (optimistic) {
+        const { normalize: optimisticNormalize } = handleResponse(payload, schema);
+
         payload.id = optimisticTransactionId;
         yield put(creators.optimisticRequest({
           meta: {
@@ -70,17 +77,20 @@ export default ({
           },
           paginate,
           payload,
-          normalize: normalizeResponse(payload, schema),
+          normalize: optimisticNormalize,
         }));
       }
 
       const response = yield call(api.post, url || resourceUrl, payload, query, fetchConfig);
+
+      const { normalize } = handleResponse(response, schema);
+
       yield put(creators.addSuccess({
         path,
         query,
         paginate,
         response,
-        normalize: normalizeResponse(response, schema),
+        normalize,
         meta: {
           optimisticTransactionId,
           optimistic: optimistic ? {
@@ -122,6 +132,7 @@ export default ({
     try {
       // if optimistic try to set the response as if it came back from the server
       if (optimistic) {
+        const { normalize: optimisticNormalize } = handleResponse(payload, schema);
         yield put(creators.optimisticRequest({
           meta: {
             optimisticTransactionId,
@@ -134,11 +145,12 @@ export default ({
           query,
           paginate,
           payload,
-          normalize: normalizeResponse(payload, schema),
+          normalize: optimisticNormalize,
         }));
       }
 
       const response = yield call(api.put, `${url}${id ? `/${id}` : ''}`, payload, query, fetchConfig);
+
       // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
         path,

@@ -1,5 +1,6 @@
 import { normalize } from 'normalizr';
 import fetchIntercept from 'fetch-intercept';
+import { setBaseUrl } from 'redux-normalized-crud';
 
 fetchIntercept.register({
     request: function (url, config) {
@@ -21,12 +22,22 @@ fetchIntercept.register({
     }
 });
 
+setBaseUrl('https://jsonplaceholder.typicode.com/');
+
 export default {
-  baseUrl: 'https://jsonplaceholder.typicode.com/',
-  normalizeResponse: (response, schema) => {
-    return normalize(response, Array.isArray(response) ? [schema] : schema);
+  handleResponse: (response, schema) => {
+    if (Array.isArray(response)) {
+      return {
+        totalItems: response.length -1,
+        normalize: normalize(response, [schema]),
+      };
+    }
+
+    return {
+      normalize: normalize(response, schema),
+    };
   },
   onServerError: (e) => {
     console.log(e);
-  }
+  },
 };

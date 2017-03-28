@@ -19,12 +19,12 @@ export function setBaseUrl(baseUrl) {
 
 export function registerEntity(config, schema) {
   const {
-    normalizeResponse,
+    handleResponse,
     onLoadRequest = () => { },
     onServerError = () => { },
     fetchConfigSelector = null,
   } = config;
-  if (!normalizeResponse) throw new Error('A normalizeResponse property needs to be defined in the config object');
+  if (!handleResponse) throw new Error('A handleResponse property needs to be defined in the config object');
 
   const key = schema._key;
   const constants = genConstants(key);
@@ -34,7 +34,7 @@ export function registerEntity(config, schema) {
     creators,
     fetchConfigSelector,
     schema,
-    normalizeResponse,
+    handleResponse,
     onLoadRequest,
     onServerError,
   });
@@ -56,21 +56,11 @@ export function registerEntity(config, schema) {
 
 export { paginationSelector } from './selector';
 
-export function getCrudSagas() {
-  const registeredSagas = [];
-
-  Object.keys(registeredEntities).forEach(key => {
-    registeredSagas.push(registeredEntities[key].sagas);
-  });
-
-  return registeredSagas;
-}
-
 export function combineWithCrudReducers(reducerObjects) {
-  let paginationReducers = {};
+  const paginationReducers = {};
 
-  Object.keys(registeredEntities).forEach(key => {
-    paginationReducers[key] = paginateReducer(registeredEntities[key].constants, registeredEntities[key].config.paginationResponseKeys || {});
+  Object.keys(registeredEntities).forEach((key) => {
+    paginationReducers[key] = paginateReducer(registeredEntities[key].constants);
   });
 
   return combineReducers({

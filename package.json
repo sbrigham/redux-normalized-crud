@@ -1,6 +1,6 @@
 {
   "name": "redux-normalized-crud",
-  "version": "0.29.0",
+  "version": "0.30.0-beta.1",
   "description": "An attempt to standardize restful calls within a growing redux application",
   "main": "lib/index.js",
   "scripts": {
