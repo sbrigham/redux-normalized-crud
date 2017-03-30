@@ -126,4 +126,38 @@ describe('Pagination Reducer', () => {
     const nextState = reducer({ }, action);
     expect(nextState.totalItems).toBeUndefined();
   });
+
+  it('Handles optimistic requests', () => {
+    const constants = genConstants('events');
+    const reducer = paginateReducer(constants);
+
+    const action = {
+      type: constants.OPTIMISTIC_REQUEST,
+      paginate: {},
+      normalize: {
+        result: 3,
+      },
+    };
+    const nextState = reducer({ ids: [1, 2], totalItems: 5 }, action);
+    expect(nextState.totalItems).toEqual(5);
+    expect(nextState.ids.length).toEqual(3);
+    expect(nextState.ids[0]).toEqual(1);
+    expect(nextState.ids[1]).toEqual(2);
+    expect(nextState.ids[2]).toEqual(3);
+
+    const newAction = {
+      type: constants.OPTIMISTIC_REQUEST,
+      paginate: {},
+      normalize: {
+        result: 2,
+      },
+    };
+
+    const afterState = reducer({ ids: [1, 2, 3], totalItems: 5 }, newAction);
+    expect(afterState.totalItems).toEqual(5);
+    expect(afterState.ids.length).toEqual(3);
+    expect(afterState.ids[0]).toEqual(1);
+    expect(afterState.ids[1]).toEqual(2);
+    expect(afterState.ids[2]).toEqual(3);
+  });
 });

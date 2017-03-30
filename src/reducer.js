@@ -110,7 +110,7 @@ export const paginateReducer = (reduxConst) => {
           ids.splice(ids.indexOf(removeEntity.id), 1);
           totalItems = totalItems - 1;
         } else {
-          ids = [result, ...existingIds];
+          ids = existingIds.indexOf(result) === -1 ? [...existingIds, result] : existingIds;
         }
         return Object.assign({}, state, {
           isLoading: false,
