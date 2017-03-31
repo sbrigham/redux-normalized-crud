@@ -14,6 +14,7 @@ import { creators as commentCreators } from './redux/comment-redux';
 class App extends Component {
   componentWillMount() {
     this.props.getPosts({
+      query: { url: 'posts' },
       paginate: {
         groupBy: {
           key: 'user',
@@ -22,6 +23,7 @@ class App extends Component {
       }
     });
     this.props.getPosts({
+      query: { url: 'posts' },
       paginate: {
         groupBy: {
           key: 'user',
@@ -29,7 +31,9 @@ class App extends Component {
         }
       }
     });
-    this.props.getComments({});
+    this.props.getComments({
+      query: { url: 'comments' },
+    });
   }
 
   render() {

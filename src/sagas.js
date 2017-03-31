@@ -40,48 +40,42 @@ export default ({
   onServerError,
 }) => {
   const resourceUrl = schema._key;
-  const getRequest = function* (api, action) {
-    const { query, paginate = {}, onError, deferLoadRequest = false } = action;
+  const getRequest = function* (api, loadSingle = false, action) {
+    const { query = {}, paginate = {}, onError, onSuccess, deferLoadRequest = false } = action;
     if (deferLoadRequest) return;
-    const { path = {}, onSuccess } = action;
-    const { id, url } = path;
+
+    const { path = {} } = action;
+    const { url, params = {} } = query;
 
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
     try {
-      let response;
-      if (id !== undefined) {
-        const promise = new Promise((resolve) => {
-          resolve(api.get(`${url || resourceUrl}/${id}`, query, fetchConfig));
-        });
-        onLoadRequest(promise);
-        response = yield promise;
-      } else {
-        const promise = new Promise((resolve) => {
-          resolve(api.get(`${url || resourceUrl}`, query, fetchConfig));
-        });
-        onLoadRequest(promise);
-        response = yield promise;
-      }
-      if (onSuccess) yield put(onSuccess(response));
+      const promise = new Promise((resolve) => {
+        resolve(api.get(url, params, fetchConfig));
+      });
 
+      onLoadRequest(promise);
+
+      const response = yield promise;
+      if (onSuccess) yield put(onSuccess(response));
       const { normalize, totalItems = null } = handleResponse(response, schema);
 
-      yield put(creators.getSuccess({
+      const successAction = loadSingle ? creators.getSuccess : creators.listSuccess;
+
+      yield put(successAction({
         response,
         paginate,
-        path,
         normalize,
         meta: {
-          totalItems,
+          totalItems, // put this with grouping
         },
       }));
     } catch (error) {
       if (onError) onError(error);
-      if (process.env.NODE_ENV === 'development') console.log(error);
       onServerError(error);
-      yield put(creators.getFailure({ error, path, paginate }));
+      const failureAction = loadSingle ? creators.getFailure : creators.listFailure;
+      yield put(failureAction({ error, path, paginate }));
     }
   };
   const onCreateRequest = function* (api, action) {
@@ -130,7 +124,6 @@ export default ({
       }));
       if (onSuccess) onSuccess(response);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.log(error);
       onServerError(error);
       if (onError) onError(error);
       yield put(creators.createFailure({
@@ -198,7 +191,6 @@ export default ({
     } catch (error) {
       onServerError(error);
       if (onError) onError(error);
-      if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.updateFailure({
         error,
         meta: {
@@ -251,7 +243,6 @@ export default ({
     } catch (error) {
       onServerError(error);
       if (onError) onError(error);
-      if (process.env.NODE_ENV === 'development') console.log(error);
       yield put(creators.deleteFailure({
         error,
         path,
@@ -271,8 +262,8 @@ export default ({
       return function* () {
         if (!api) throw new Error('you must specify an api');
         yield [
-          takeEvery(constants.GET_REQUEST, getRequest, api),
-          takeEvery(constants.LIST_REQUEST, getRequest, api),
+          takeEvery(constants.GET_REQUEST, getRequest, api, true),
+          takeEvery(constants.LIST_REQUEST, getRequest, api, false),
 
           takeEvery(constants.CREATE_REQUEST, onCreateRequest, api),
           takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
