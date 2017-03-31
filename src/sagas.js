@@ -2,6 +2,34 @@ import { select, put, call, takeEvery } from 'redux-saga/effects';
 import { BEGIN, COMMIT, REVERT } from 'redux-optimistic-ui';
 import uuid from 'uuid';
 
+/*
+New API
+
+getRequest
+listRequest
+
+getRequest({
+  query: {
+    url: 'awesome',
+    params: {
+
+    },
+    payload: {
+
+    }
+  },
+  group: {
+    by: 'school',
+    by: {
+      key: 'school'
+      index: '1'
+    },
+    reset: true
+  }
+})
+*/
+
+
 export default ({
   constants,
   creators,
@@ -12,7 +40,7 @@ export default ({
   onServerError,
 }) => {
   const resourceUrl = schema._key;
-  const loadRequest = function* (api, action) {
+  const getRequest = function* (api, action) {
     const { query, paginate = {}, onError, deferLoadRequest = false } = action;
     if (deferLoadRequest) return;
     const { path = {}, onSuccess } = action;
@@ -40,7 +68,7 @@ export default ({
 
       const { normalize, totalItems = null } = handleResponse(response, schema);
 
-      yield put(creators.loadSuccess({
+      yield put(creators.getSuccess({
         response,
         paginate,
         path,
@@ -53,10 +81,10 @@ export default ({
       if (onError) onError(error);
       if (process.env.NODE_ENV === 'development') console.log(error);
       onServerError(error);
-      yield put(creators.loadFailure({ error, path, paginate }));
+      yield put(creators.getFailure({ error, path, paginate }));
     }
   };
-  const onAddRequest = function* (api, action) {
+  const onCreateRequest = function* (api, action) {
     const { path, payload, query, paginate = {}, optimistic = true, onSuccess, onError } = action;
     const { url } = path;
     const optimisticTransactionId = uuid.v4();
@@ -86,7 +114,7 @@ export default ({
 
       const { normalize } = handleResponse(response, schema);
 
-      yield put(creators.addSuccess({
+      yield put(creators.createSuccess({
         path,
         query,
         paginate,
@@ -105,7 +133,7 @@ export default ({
       if (process.env.NODE_ENV === 'development') console.log(error);
       onServerError(error);
       if (onError) onError(error);
-      yield put(creators.addFailure({
+      yield put(creators.createFailure({
         error,
         path,
         paginate,
@@ -243,8 +271,10 @@ export default ({
       return function* () {
         if (!api) throw new Error('you must specify an api');
         yield [
-          takeEvery(constants.LOAD_REQUEST, loadRequest, api),
-          takeEvery(constants.ADD_REQUEST, onAddRequest, api),
+          takeEvery(constants.GET_REQUEST, getRequest, api),
+          takeEvery(constants.LIST_REQUEST, getRequest, api),
+
+          takeEvery(constants.CREATE_REQUEST, onCreateRequest, api),
           takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
           takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api),
         ];

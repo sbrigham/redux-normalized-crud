@@ -6,7 +6,7 @@ export const genRSF = (action, name) => {
 };
 
 export default (name) => {
-  return ['LOAD', 'ADD', 'UPDATE', 'DELETE', 'OPTIMISTIC'].reduce((acc, action) => {
+  return ['GET', 'LIST', 'CREATE', 'UPDATE', 'DELETE', 'OPTIMISTIC'].reduce((acc, action) => {
     return Object.assign({}, acc, genRSF(action, name));
   }, {});
 };

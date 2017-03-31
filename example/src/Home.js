@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import logo from './logo.svg';
 import './App.css';
-import { connect } from 'react-redux';
 import {
   creators as postCreators,
   paginationSelector as pagedPosts,
-  entitySelector as postSelector
+  entitySelector as postSelector,
 } from './redux/post-redux';
 import { creators as commentCreators } from './redux/comment-redux';
-import {Link} from 'react-router';
+
 
 class App extends Component {
   componentWillMount() {
-    this.props.loadPosts({
+    this.props.getPosts({
       paginate: {
         groupBy: {
           key: 'user',
@@ -20,7 +21,7 @@ class App extends Component {
         }
       }
     });
-    this.props.loadPosts({
+    this.props.getPosts({
       paginate: {
         groupBy: {
           key: 'user',
@@ -28,7 +29,7 @@ class App extends Component {
         }
       }
     });
-    this.props.loadComments({});
+    this.props.getComments({});
   }
 
   render() {
@@ -58,13 +59,13 @@ class App extends Component {
   }
 }
 
-export default connect(state => {
-  const groupedPosts = pagedPosts({key: 'user', index: 1})(state);
+export default connect((state) => {
+  const groupedPosts = pagedPosts({ key: 'user', index: 1 })(state);
   const posts = groupedPosts.ids.map(id => postSelector(id)(state));
   return {
-    posts
-  }
+    posts,
+  };
 }, {
-  loadPosts: postCreators.loadRequest,
-  loadComments: commentCreators.loadRequest
+  getPosts: postCreators.listRequest,
+  getComments: commentCreators.listRequest,
 })(App);

@@ -158,12 +158,12 @@ import {
 
 class PostList extends React.Component {
   componentWillMount() {
-    const { loadPosts } = this.props;
-    loadPosts({});
+    const { getPosts } = this.props;
+    getPosts({});
   }
 
   render() {
-    const { posts, loading } = this.props;
+    const { posts, geting } = this.props;
 
     if(loading) return <div> Loading... </div>;
 
@@ -195,7 +195,7 @@ export default connect(state => {
   return { posts, loading: pagedData.isLoading }
 }, 
 {
-  loadPosts: PostCrudActions.loadRequest
+  getPosts: PostCrudActions.getRequest
 })(PostList);
 
   

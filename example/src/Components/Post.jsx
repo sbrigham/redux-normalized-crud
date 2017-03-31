@@ -9,9 +9,9 @@ class Post extends React.Component {
   }
 
   componentWillMount() {
-    const {params, loadPost} = this.props;
+    const {params, getPost} = this.props;
     const {postId} = params;
-    loadPost({
+    getPost({
       path: {
         id: postId
       }
@@ -51,4 +51,4 @@ export default connect((state, props) => {
   return {
     post
   }
-}, { loadPost: creators.loadRequest, updateTitle:  creators.updateRequest})(Post);
+}, { getPost: creators.getRequest, updateTitle:  creators.updateRequest})(Post);

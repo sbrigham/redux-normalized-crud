@@ -7,7 +7,7 @@ describe('Pagination Reducer', () => {
     const reducer = paginateReducer(constants);
 
     const firstAction = {
-      type: constants.LOAD_REQUEST,
+      type: constants.GET_REQUEST,
       paginate: {
         groupBy: {
           key: 'status',
@@ -53,7 +53,7 @@ describe('Pagination Reducer', () => {
     const reducer = paginateReducer(constants);
 
     const firstAction = {
-      type: constants.LOAD_REQUEST,
+      type: constants.GET_REQUEST,
       paginate: {
         groupBy: {
           key: 'status',
@@ -96,12 +96,12 @@ describe('Pagination Reducer', () => {
     })
   });
 
-  it('Sets has made request after a load request', () => {
+  it('Sets has made request after a get request', () => {
     const constants = genConstants('events');
     const reducer = paginateReducer(constants);
 
     const firstAction = {
-      type: constants.LOAD_REQUEST,
+      type: constants.GET_REQUEST,
       paginate: {},
     };
 
@@ -114,7 +114,7 @@ describe('Pagination Reducer', () => {
     const reducer = paginateReducer(constants);
 
     const action = {
-      type: constants.LOAD_SUCCESS,
+      type: constants.GET_SUCCESS,
       paginate: {},
       normalize: {
         result: {

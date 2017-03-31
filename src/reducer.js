@@ -68,8 +68,9 @@ export const paginateReducer = (reduxConst) => {
     if (paginate && 'direction' in paginate) direction = paginate.direction;
 
     switch (action.type) {
-      case reduxConst.LOAD_REQUEST:
-      case reduxConst.ADD_REQUEST:
+      case reduxConst.GET_REQUEST:
+      case reduxConst.LIST_REQUEST:
+      case reduxConst.CREATE_REQUEST:
       case reduxConst.UPDATE_REQUEST:
       case reduxConst.DELETE_REQUEST: {
         const override = {
@@ -83,7 +84,8 @@ export const paginateReducer = (reduxConst) => {
           ...override,
         };
       }
-      case reduxConst.LOAD_SUCCESS: {
+      case reduxConst.LIST_SUCCESS:
+      case reduxConst.GET_SUCCESS: {
         if (!Array.isArray(result)) return state;
 
         const newIDs = result !== null && Array.isArray(result) ? result : [result];
@@ -118,7 +120,7 @@ export const paginateReducer = (reduxConst) => {
           totalItems: ids.length > totalItems ? ids.length : totalItems,
         });
       }
-      case reduxConst.ADD_SUCCESS: {
+      case reduxConst.CREATE_SUCCESS: {
         const reset = 'reset' in paginate ? paginate.reset : false;
         let existingIds = [...state.ids];
         let newIds = [];
@@ -148,8 +150,9 @@ export const paginateReducer = (reduxConst) => {
           totalItems: state.totalItems ? state.totalItems - 1 : 0
         });
       }
-      case reduxConst.LOAD_FAILURE:
-      case reduxConst.ADD_FAILURE:
+      case reduxConst.LIST_FAILURE:
+      case reduxConst.GET_FAILURE:
+      case reduxConst.CREATE_FAILURE:
       case reduxConst.UPDATE_SUCCESS:
       case reduxConst.UPDATE_FAILURE:
       case reduxConst.DELETE_FAILURE:
@@ -167,12 +170,15 @@ export const paginateReducer = (reduxConst) => {
     if (paginate === false) return state;
 
     switch (action.type) {
-      case reduxConst.LOAD_REQUEST:
-      case reduxConst.LOAD_SUCCESS:
-      case reduxConst.LOAD_FAILURE:
-      case reduxConst.ADD_REQUEST:
-      case reduxConst.ADD_SUCCESS:
-      case reduxConst.ADD_FAILURE:
+      case reduxConst.LIST_REQUEST:
+      case reduxConst.LIST_SUCCESS:
+      case reduxConst.LIST_FAILURE:
+      case reduxConst.GET_REQUEST:
+      case reduxConst.GET_SUCCESS:
+      case reduxConst.GET_FAILURE:
+      case reduxConst.CREATE_REQUEST:
+      case reduxConst.CREATE_SUCCESS:
+      case reduxConst.CREATE_FAILURE:
       case reduxConst.UPDATE_REQUEST:
       case reduxConst.UPDATE_SUCCESS:
       case reduxConst.UPDATE_FAILURE:
