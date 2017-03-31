@@ -79,8 +79,9 @@ export default ({
     }
   };
   const onCreateRequest = function* (api, action) {
-    const { path, payload, query, paginate = {}, optimistic = true, onSuccess, onError } = action;
-    const { url } = path;
+    const { query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { url, payload = {} } = query;
+
     const optimisticTransactionId = uuid.v4();
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
@@ -104,12 +105,10 @@ export default ({
         }));
       }
 
-      const response = yield call(api.post, url || resourceUrl, payload, query, fetchConfig);
-
+      const response = yield call(api.post, url, payload, query, fetchConfig);
       const { normalize } = handleResponse(response, schema);
 
       yield put(creators.createSuccess({
-        path,
         query,
         paginate,
         response,
@@ -128,7 +127,6 @@ export default ({
       if (onError) onError(error);
       yield put(creators.createFailure({
         error,
-        path,
         paginate,
         meta: {
           optimisticTransactionId,
@@ -141,18 +139,16 @@ export default ({
     }
   };
   const onUpdateRequest = function* (api, action) {
-    const { path, payload, query, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { payload = {}, url } = query;
 
-    if (path === undefined && payload.id === undefined) throw new Error('You need to specify an id for this update request');
+    if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this update request');
 
-    const id = path !== undefined ? path.id : payload.id;
-    const url = path !== undefined ? path.url : resourceUrl;
     const optimisticTransactionId = uuid.v4();
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
     try {
-      // if optimistic try to set the response as if it came back from the server
       if (optimistic) {
         const { normalize: optimisticNormalize } = handleResponse(payload, schema);
         yield put(creators.optimisticRequest({
@@ -163,7 +159,6 @@ export default ({
               id: optimisticTransactionId,
             },
           },
-          path,
           query,
           paginate,
           payload,
@@ -171,11 +166,9 @@ export default ({
         }));
       }
 
-      const response = yield call(api.put, `${url}${id ? `/${id}` : ''}`, payload, query, fetchConfig);
+      const response = yield call(api.put, url, payload, query, fetchConfig);
 
-      // NO ERRORS FROM THE SERVER
       yield put(creators.updateSuccess({
-        path,
         query,
         paginate,
         response,
@@ -203,9 +196,13 @@ export default ({
       }));
     }
   };
+
   const onDeleteRequest = function* (api, action) {
-    const { path, payload = {}, query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
-    const { url, id } = path;
+    const { query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { payload = {}, url } = query;
+
+    if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this delete request');
+
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
@@ -221,14 +218,13 @@ export default ({
             },
           },
           removeEntity: {
-            id,
+            id: payload.id,
             entityName: resourceUrl,
           },
         }));
       }
       const response = yield call(api.delete, url, payload, query, fetchConfig);
       yield put(creators.deleteSuccess({
-        path,
         paginate,
         meta: {
           optimisticTransactionId,
@@ -245,7 +241,6 @@ export default ({
       if (onError) onError(error);
       yield put(creators.deleteFailure({
         error,
-        path,
         paginate,
         meta: {
           optimisticTransactionId,
@@ -257,6 +252,7 @@ export default ({
       }));
     }
   };
+  
   return {
     init: function (api) {
       return function* () {
