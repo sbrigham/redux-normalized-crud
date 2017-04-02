@@ -19,7 +19,6 @@ getRequest({
     }
   },
   group: {
-    by: 'school',
     by: {
       key: 'school'
       index: '1'
@@ -41,7 +40,7 @@ export default ({
 }) => {
   const resourceUrl = schema._key;
   const getRequest = function* (api, loadSingle = false, action) {
-    const { query = {}, paginate = {}, onError, onSuccess, deferLoadRequest = false } = action;
+    const { query = {}, group = {}, onError, onSuccess, deferLoadRequest = false } = action;
     if (deferLoadRequest) return;
 
     const { path = {} } = action;
@@ -65,7 +64,7 @@ export default ({
 
       yield put(successAction({
         response,
-        paginate,
+        group,
         normalize,
         meta: {
           totalItems, // put this with grouping
@@ -75,11 +74,11 @@ export default ({
       if (onError) onError(error);
       onServerError(error);
       const failureAction = loadSingle ? creators.getFailure : creators.listFailure;
-      yield put(failureAction({ error, path, paginate }));
+      yield put(failureAction({ error, path, group }));
     }
   };
   const onCreateRequest = function* (api, action) {
-    const { query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
     const { url, payload = {} } = query;
 
     const optimisticTransactionId = uuid.v4();
@@ -99,7 +98,7 @@ export default ({
               id: optimisticTransactionId,
             },
           },
-          paginate,
+          group,
           payload,
           normalize: optimisticNormalize,
         }));
@@ -110,7 +109,7 @@ export default ({
 
       yield put(creators.createSuccess({
         query,
-        paginate,
+        group,
         response,
         normalize,
         meta: {
@@ -127,7 +126,7 @@ export default ({
       if (onError) onError(error);
       yield put(creators.createFailure({
         error,
-        paginate,
+        group,
         meta: {
           optimisticTransactionId,
           optimistic: optimistic ? {
@@ -139,7 +138,7 @@ export default ({
     }
   };
   const onUpdateRequest = function* (api, action) {
-    const { query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
     const { payload = {}, url } = query;
 
     if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this update request');
@@ -160,7 +159,7 @@ export default ({
             },
           },
           query,
-          paginate,
+          group,
           payload,
           normalize: optimisticNormalize,
         }));
@@ -170,7 +169,7 @@ export default ({
 
       yield put(creators.updateSuccess({
         query,
-        paginate,
+        group,
         response,
         meta: {
           optimisticTransactionId,
@@ -198,7 +197,7 @@ export default ({
   };
 
   const onDeleteRequest = function* (api, action) {
-    const { query = {}, paginate = {}, optimistic = true, onSuccess, onError } = action;
+    const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
     const { payload = {}, url } = query;
 
     if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this delete request');
@@ -225,7 +224,7 @@ export default ({
       }
       const response = yield call(api.delete, url, payload, query, fetchConfig);
       yield put(creators.deleteSuccess({
-        paginate,
+        group,
         meta: {
           optimisticTransactionId,
           optimistic: optimistic ? {
@@ -241,7 +240,7 @@ export default ({
       if (onError) onError(error);
       yield put(creators.deleteFailure({
         error,
-        paginate,
+        group,
         meta: {
           optimisticTransactionId,
           optimistic: optimistic ? {

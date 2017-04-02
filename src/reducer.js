@@ -53,9 +53,9 @@ export const groupByKey = (key) => {
   return `by${key.charAt(0).toUpperCase() + key.slice(1)}`;
 };
 
-export const paginateReducer = (reduxConst) => {
+export const groupingReducer = (reduxConst) => {
   const reducer = (state = defaultState, action) => {
-    const { payload, normalize, paginate, removeEntity, meta } = action;
+    const { payload, normalize, group, removeEntity, meta } = action;
     let result = [];
     let totalItems = state.totalItems || 0;
     let direction = null;
@@ -65,7 +65,7 @@ export const paginateReducer = (reduxConst) => {
     if (meta && meta.totalItems) totalItems = meta.totalItems;
 
     if (payload && 'direction' in payload) direction = payload.direction;
-    if (paginate && 'direction' in paginate) direction = paginate.direction;
+    if (group && 'direction' in group) direction = group.direction;
 
     switch (action.type) {
       case reduxConst.GET_REQUEST:
@@ -91,7 +91,7 @@ export const paginateReducer = (reduxConst) => {
         const newIDs = result !== null && Array.isArray(result) ? result : [result];
         const isNext = direction === 'next';
 
-        const reset = 'reset' in paginate ? paginate.reset : false;
+        const reset = 'reset' in group ? group.reset : false;
         let existingIds = [...state.ids];
         if (reset) existingIds = [];
 
@@ -103,7 +103,7 @@ export const paginateReducer = (reduxConst) => {
         });
       }
       case reduxConst.OPTIMISTIC_REQUEST: {
-        const reset = 'reset' in paginate ? paginate.reset : false;
+        const reset = 'reset' in group ? group.reset : false;
         let existingIds = [...state.ids];
         if (reset) existingIds = [];
 
@@ -121,7 +121,7 @@ export const paginateReducer = (reduxConst) => {
         });
       }
       case reduxConst.CREATE_SUCCESS: {
-        const reset = 'reset' in paginate ? paginate.reset : false;
+        const reset = 'reset' in group ? group.reset : false;
         let existingIds = [...state.ids];
         let newIds = [];
         if (reset) existingIds = [];
@@ -166,8 +166,8 @@ export const paginateReducer = (reduxConst) => {
   };
 
   return (state = { groups: null }, action) => {
-    const { paginate = false } = action;
-    if (paginate === false) return state;
+    const { group = false } = action;
+    if (group === false) return state;
 
     switch (action.type) {
       case reduxConst.LIST_REQUEST:
@@ -186,13 +186,13 @@ export const paginateReducer = (reduxConst) => {
       case reduxConst.DELETE_SUCCESS:
       case reduxConst.DELETE_FAILURE:
       case reduxConst.OPTIMISTIC_REQUEST: {
-        const { groupBy, removeFromGrouping = false } = paginate;
-        if (groupBy) {
-          if (paginate && !('groupBy' in paginate)) throw new Error(`A groupBy must be specified in the form groupBy: { index: number, key: string}. For action type: ${action.type} `);
-          if (paginate.groupBy && !('key' in paginate.groupBy)) throw new Error(`A key as a string must be specified in your groupBy. For action type: ${action.type}`);
-          if (paginate.groupBy && !('index' in paginate.groupBy)) throw new Error(`An index as an int/string must be specified in your groupBy. For action type: ${action.type}`);
+        const { by, removeFromGrouping = false } = group;
+        if (by) {
+          if (group && !('by' in group)) throw new Error(`"by" must be specified in the form by: { index: number, key: string}. For action type: ${action.type} `);
+          if (group.by && !('key' in group.by)) throw new Error(`A key as a string must be specified in your by. For action type: ${action.type}`);
+          if (group.by && !('index' in group.by)) throw new Error(`An index as an int/string must be specified in your by. For action type: ${action.type}`);
 
-          const { key, index } = groupBy;
+          const { key, index } = by;
           const byKey = groupByKey(key);
 
           const existingGroups = state.groups ? state.groups[byKey] : {};

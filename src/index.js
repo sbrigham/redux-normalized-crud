@@ -4,7 +4,7 @@ import genCreators from './action-creators';
 import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
-import { paginateReducer, entitiesReducer } from './reducer';
+import { groupingReducer, entitiesReducer } from './reducer';
 import { groupingSelector, entitySelector } from './selector';
 
 require('isomorphic-fetch');
@@ -60,7 +60,7 @@ export function combineWithCrudReducers(reducerObjects) {
   const groupingReducers = {};
 
   Object.keys(registeredEntities).forEach((key) => {
-    groupingReducers[key] = paginateReducer(registeredEntities[key].constants);
+    groupingReducers[key] = groupingReducer(registeredEntities[key].constants);
   });
 
   return combineReducers({

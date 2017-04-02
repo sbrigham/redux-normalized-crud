@@ -15,8 +15,8 @@ class App extends Component {
   componentWillMount() {
     this.props.getPosts({
       query: { url: 'posts' },
-      paginate: {
-        groupBy: {
+      group: {
+        by: {
           key: 'user',
           index: 1,
         },
@@ -24,8 +24,8 @@ class App extends Component {
     });
     this.props.getPosts({
       query: { url: 'posts' },
-      paginate: {
-        groupBy: {
+      group: {
+        by: {
           key: 'user',
           index: 2,
         },
