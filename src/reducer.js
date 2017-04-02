@@ -165,7 +165,7 @@ export const paginateReducer = (reduxConst) => {
     }
   };
 
-  return (state = { groupings: null }, action) => {
+  return (state = { groups: null }, action) => {
     const { paginate = false } = action;
     if (paginate === false) return state;
 
@@ -195,31 +195,31 @@ export const paginateReducer = (reduxConst) => {
           const { key, index } = groupBy;
           const byKey = groupByKey(key);
 
-          const existingGroupings = state.groupings ? state.groupings[byKey] : {};
-          const existingValues = state.groupings && state.groupings[byKey] ? state.groupings[byKey][index] : defaultState;
-          const updatedGroupings = {};
+          const existingGroups = state.groups ? state.groups[byKey] : {};
+          const existingValues = state.groups && state.groups[byKey] ? state.groups[byKey][index] : defaultState;
+          const updatedGroups = {};
 
           if (removeFromGrouping && action.payload && action.payload.id > -1) {
             const { key: keyToRemove, index: indexToRemove } = removeFromGrouping;
-            const valuesToRemove = state.groupings ? state.groupings[groupByKey(keyToRemove)][indexToRemove] : { ids: [] };
-            updatedGroupings[indexToRemove] = reducer(valuesToRemove, { ...action, removeEntity: { id: action.payload.id } });
+            const valuesToRemove = state.groups ? state.groups[groupByKey(keyToRemove)][indexToRemove] : { ids: [] };
+            updatedGroups[indexToRemove] = reducer(valuesToRemove, { ...action, removeEntity: { id: action.payload.id } });
           }
           return {
             ...state,
-            groupings: {
-              ...state.groupings,
+            groups: {
+              ...state.groups,
               [byKey]: {
-                ...existingGroupings,
-                ...updatedGroupings,
+                ...existingGroups,
+                ...updatedGroups,
                 [index]: { ...existingValues, ...reducer(existingValues, action) },
               },
             },
           };
         }
-        let { groupings, ...everythingElse } = state;
+        let { groups, ...everythingElse } = state;
         everythingElse = { ids: [], ...everythingElse };
         return {
-          groupings,
+          groups,
           ...reducer(everythingElse, action),
         };
       }

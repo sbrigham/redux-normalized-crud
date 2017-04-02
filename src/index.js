@@ -5,7 +5,7 @@ import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
 import { paginateReducer, entitiesReducer } from './reducer';
-import { paginationSelector, entitySelector } from './selector';
+import { groupingSelector, entitySelector } from './selector';
 
 require('isomorphic-fetch');
 
@@ -45,7 +45,7 @@ export function registerEntity(config, schema) {
     creators,
     sagas: sagas.init(restApi),
     entitySelector: entitySelector(key),
-    paginationSelector: paginationSelector(key),
+    groupingSelector: groupingSelector(key),
     config,
     restApi,
   };
@@ -54,13 +54,13 @@ export function registerEntity(config, schema) {
   return registeredEntity;
 }
 
-export { paginationSelector } from './selector';
+export { groupingSelector } from './selector';
 
 export function combineWithCrudReducers(reducerObjects) {
-  const paginationReducers = {};
+  const groupingReducers = {};
 
   Object.keys(registeredEntities).forEach((key) => {
-    paginationReducers[key] = paginateReducer(registeredEntities[key].constants);
+    groupingReducers[key] = paginateReducer(registeredEntities[key].constants);
   });
 
   return combineReducers({
@@ -68,8 +68,8 @@ export function combineWithCrudReducers(reducerObjects) {
     crud: optimistic(
       combineReducers({
         entities: entitiesReducer,
-        pagination: combineReducers(paginationReducers)
+        groupings: combineReducers(groupingReducers),
       })
-    )
+    ),
   });
 }

@@ -1,11 +1,11 @@
-import { registerEntity } from 'redux-normalized-crud'
-import config from './config';
+import { registerEntity } from 'redux-normalized-crud';
 import { schema } from 'normalizr';
+import config from './config';
 
 export const {
   constants,
   creators,
-  paginationSelector,
+  groupingSelector,
   entitySelector,
   sagas,
 } = registerEntity(config, new schema.Entity('comments'));

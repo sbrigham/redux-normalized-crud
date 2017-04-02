@@ -101,7 +101,7 @@ Note: This can be defined on for every resource in your system or you could defi
     constants, // An object full of post constants that contain all of the crud actions
     creators, // An object full of all the action creators for the post entity
     entitySelector, // A helpful selector that is ready to key off the post entities
-    paginationSelector, // Another helpful selector ready to key off of your defined paged lists
+    groupingSelector, // Another helpful selector ready to key off of your defined paged lists
   } = registerEntity(config, postEntity);
 ~~~
 
@@ -153,7 +153,7 @@ import { connect } from 'react-redux';
 import {
   creators as PostCrudActions,
   entitySelector as postSelector,
-  paginationSelector as pagedPosts
+  groupingSelector as pagedPosts
 } from './post-redux';
 
 class PostList extends React.Component {

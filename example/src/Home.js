@@ -5,7 +5,7 @@ import logo from './logo.svg';
 import './App.css';
 import {
   creators as postCreators,
-  paginationSelector as pagedPosts,
+  groupingSelector as pagedPosts,
   entitySelector as postSelector,
 } from './redux/post-redux';
 import { creators as commentCreators } from './redux/comment-redux';
@@ -18,18 +18,18 @@ class App extends Component {
       paginate: {
         groupBy: {
           key: 'user',
-          index: 1
-        }
-      }
+          index: 1,
+        },
+      },
     });
     this.props.getPosts({
       query: { url: 'posts' },
       paginate: {
         groupBy: {
           key: 'user',
-          index: 2
-        }
-      }
+          index: 2,
+        },
+      },
     });
     this.props.getComments({
       query: { url: 'comments' },
