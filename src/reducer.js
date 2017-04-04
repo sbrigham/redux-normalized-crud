@@ -47,6 +47,7 @@ export const defaultState = {
   ids: [],
   hasError: false,
   totalItems: 0,
+  meta: {},
 };
 
 export const groupByKey = (key) => {
@@ -55,7 +56,7 @@ export const groupByKey = (key) => {
 
 export const groupingReducer = (reduxConst) => {
   const reducer = (state = defaultState, action) => {
-    const { payload, normalize, group, removeEntity, meta } = action;
+    const { payload, normalize, group, removeEntity, meta = {} } = action;
     let result = [];
     let totalItems = state.totalItems || 0;
     let direction = null;
@@ -100,6 +101,7 @@ export const groupingReducer = (reduxConst) => {
           isLoading: false,
           ids: uniq(ids),
           totalItems: (totalItems ? totalItems : ids.length),
+          meta: meta.responseMeta ? meta.responseMeta : state.meta,
         });
       }
       case reduxConst.OPTIMISTIC_REQUEST: {

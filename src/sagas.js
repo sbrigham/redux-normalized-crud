@@ -2,33 +2,6 @@ import { select, put, call, takeEvery } from 'redux-saga/effects';
 import { BEGIN, COMMIT, REVERT } from 'redux-optimistic-ui';
 import uuid from 'uuid';
 
-/*
-New API
-
-getRequest
-listRequest
-
-getRequest({
-  query: {
-    url: 'awesome',
-    params: {
-
-    },
-    payload: {
-
-    }
-  },
-  group: {
-    by: {
-      key: 'school'
-      index: '1'
-    },
-    reset: true
-  }
-})
-*/
-
-
 export default ({
   constants,
   creators,
@@ -58,7 +31,7 @@ export default ({
 
       const response = yield promise;
       if (onSuccess) yield put(onSuccess(response));
-      const { normalize, totalItems = null } = handleResponse(response, schema);
+      const { normalize, totalItems = null, meta = {} } = handleResponse(response, schema);
 
       const successAction = loadSingle ? creators.getSuccess : creators.listSuccess;
 
@@ -67,7 +40,8 @@ export default ({
         group,
         normalize,
         meta: {
-          totalItems, // put this with grouping
+          totalItems,
+          responseMeta: meta,
         },
       }));
     } catch (error) {
@@ -87,7 +61,7 @@ export default ({
 
     try {
       if (optimistic) {
-        const { normalize: optimisticNormalize } = handleResponse(payload, schema);
+        const { normalize: optimisticNormalize, meta = {} } = handleResponse(payload, schema);
 
         payload.id = optimisticTransactionId;
         yield put(creators.optimisticRequest({
@@ -97,6 +71,7 @@ export default ({
               type: BEGIN,
               id: optimisticTransactionId,
             },
+            responseMeta: meta,
           },
           group,
           payload,
@@ -105,7 +80,7 @@ export default ({
       }
 
       const response = yield call(api.post, url, payload, query, fetchConfig);
-      const { normalize } = handleResponse(response, schema);
+      const { normalize, meta } = handleResponse(response, schema);
 
       yield put(creators.createSuccess({
         query,
@@ -118,6 +93,7 @@ export default ({
             type: COMMIT,
             id: optimisticTransactionId,
           } : null,
+          responseMeta: meta,
         },
       }));
       if (onSuccess) onSuccess(response);
@@ -149,7 +125,7 @@ export default ({
 
     try {
       if (optimistic) {
-        const { normalize: optimisticNormalize } = handleResponse(payload, schema);
+        const { normalize: optimisticNormalize, meta = {} } = handleResponse(payload, schema);
         yield put(creators.optimisticRequest({
           meta: {
             optimisticTransactionId,
@@ -157,6 +133,7 @@ export default ({
               type: BEGIN,
               id: optimisticTransactionId,
             },
+            responseMeta: meta,
           },
           query,
           group,

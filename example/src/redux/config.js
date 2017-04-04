@@ -28,6 +28,10 @@ export default {
   handleResponse: (response, schema) => {
     if (Array.isArray(response)) {
       return {
+        meta: {
+          skip: 1,
+          randomData: 'yes',
+        },
         totalItems: response.length -1,
         normalize: normalize(response, [schema]),
       };
