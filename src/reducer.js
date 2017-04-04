@@ -64,8 +64,8 @@ export const paginateReducer = (reduxConst) => {
 
     if (meta && meta.totalItems) totalItems = meta.totalItems;
 
-    if (payload && 'direction' in payload) direction = payload.direction;
     if (paginate && 'direction' in paginate) direction = paginate.direction;
+    const isNext = direction === 'next';
 
     switch (action.type) {
       case reduxConst.LOAD_REQUEST:
@@ -87,8 +87,6 @@ export const paginateReducer = (reduxConst) => {
         if (!Array.isArray(result)) return state;
 
         const newIDs = result !== null && Array.isArray(result) ? result : [result];
-        const isNext = direction === 'next';
-
         const reset = 'reset' in paginate ? paginate.reset : false;
         let existingIds = [...state.ids];
         if (reset) existingIds = [];
@@ -110,8 +108,13 @@ export const paginateReducer = (reduxConst) => {
           ids.splice(ids.indexOf(removeEntity.id), 1);
           totalItems = totalItems - 1;
         } else {
-          ids = existingIds.indexOf(result) === -1 ? [...existingIds, result] : existingIds;
+          if (existingIds.indexOf(result) === -1) {
+            ids = isNext ? [...existingIds, result] : [result, ...existingIds];
+          } else {
+            ids = existingIds;
+          }
         }
+
         return Object.assign({}, state, {
           isLoading: false,
           ids: uniq(ids),

@@ -68,8 +68,8 @@ export function combineWithCrudReducers(reducerObjects) {
     crud: optimistic(
       combineReducers({
         entities: entitiesReducer,
-        pagination: combineReducers(paginationReducers)
+        pagination: combineReducers(paginationReducers),
       })
-    )
+    ),
   });
 }
