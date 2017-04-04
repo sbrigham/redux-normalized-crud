@@ -61,9 +61,10 @@ export default ({
 
     try {
       if (optimistic) {
-        const { normalize: optimisticNormalize, meta = {} } = handleResponse(payload, schema);
-
-        payload.id = optimisticTransactionId;
+        const {
+          normalize: optimisticNormalize,
+          meta = {},
+        } = handleResponse({ id: optimisticTransactionId, ...payload }, schema);
         yield put(creators.optimisticRequest({
           meta: {
             optimisticTransactionId,
