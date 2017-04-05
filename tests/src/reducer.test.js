@@ -25,9 +25,156 @@ describe('Groupings Reducer', () => {
     expect(nextState).toEqual(defaultState);
   });
 
-  describe('Create Requests', () => {});
+  describe('CREATE REQUESTS', () => {
+    it('Sets isLoading = true', () => {
+      const action = {
+        type: constants.CREATE_REQUEST,
+        group: {},
+      };
 
-  describe('Get Requests', () => {
+      const nextState = reducer(defaultState, action);
+      expect(nextState.isLoading).toBe(true);
+    });
+
+    it('Sets hasMadeRequest = true', () => {
+      const action = {
+        type: constants.CREATE_REQUEST,
+        group: {},
+      };
+
+      const nextState = reducer(defaultState, action);
+      expect(nextState.hasMadeRequest).toBe(true);
+    });
+
+    describe('CREATE_SUCCESS', () => {
+      it('Works', () => {
+        const action = {
+          type: constants.CREATE_SUCCESS,
+          group: {},
+          normalize: {
+            result: 3,
+          },
+        };
+        const nextState = reducer({
+          ids: [
+            1, 2,
+          ],
+          totalItems: 5,
+        }, action);
+
+        expect(nextState.ids.length).toEqual(3);
+        expect(nextState.ids[2]).toEqual(3);
+      });
+      
+      it('Handles direction next', () => {
+        const action = {
+          type: constants.CREATE_SUCCESS,
+          group: { direction: 'next' },
+          normalize: {
+            result: 3,
+          },
+        };
+        const nextState = reducer({
+          ids: [
+            1, 2,
+          ],
+          totalItems: 5,
+        }, action);
+
+        expect(nextState.ids.length).toEqual(3);
+        expect(nextState.ids[2]).toEqual(3);
+      });
+
+      it('Handles prev', () => {
+        const action = {
+          type: constants.CREATE_SUCCESS,
+          group: { direction: 'prev' },
+          normalize: {
+            result: 3,
+          },
+        };
+        const nextState = reducer({
+          ids: [
+            1, 2,
+          ],
+          totalItems: 5,
+        }, action);
+
+        expect(nextState.ids.length).toEqual(3);
+        expect(nextState.ids[0]).toEqual(3);
+      });
+
+      it('Handles \'reset\'', () => {
+        const action = {
+          type: constants.CREATE_SUCCESS,
+          group: { reset: true },
+          normalize: {
+            result: 3,
+          },
+        };
+        const nextState = reducer({
+          ids: [
+            1, 2, 3, 4,
+          ],
+          totalItems: 5,
+        }, action);
+
+        expect(nextState.ids.length).toEqual(1);
+        expect(nextState.ids[0]).toEqual(3);
+      });
+
+      it('Swaps out an optimistic record for the new one', () => {
+        const action = {
+          type: constants.CREATE_SUCCESS,
+          group: { direction: 'prev' },
+          normalize: {
+            result: 3,
+          },
+          meta: {
+            optimisticTransactionId: 'abc123',
+          },
+        };
+        const nextState = reducer({
+          ids: [
+            'abc123', 2,
+          ],
+          totalItems: 5,
+        }, action);
+
+        expect(nextState.ids.length).toEqual(2);
+        expect(nextState.ids[0]).toEqual(3);
+      });
+
+      it('Increments totalItems by 1', () => {
+        const action = {
+          type: constants.CREATE_SUCCESS,
+          group: { direction: 'next' },
+          normalize: {
+            result: 3,
+          },
+        };
+        const nextState = reducer({
+          ids: [
+            1, 2,
+          ],
+          totalItems: 5,
+        }, action);
+
+        expect(nextState.ids.length).toEqual(3);
+        expect(nextState.totalItems).toEqual(6);
+
+        const anotherNextState = reducer({
+          ids: [
+            1, 2,
+          ],
+        }, action);
+        expect(anotherNextState.ids.length).toEqual(3);
+        expect(anotherNextState.totalItems).toEqual(3);
+      });
+    });
+  });
+
+  describe('LIST REQUESTS', () => {
     it('Sets has made request after a get request', () => {
       const firstAction = {
         type: constants.LIST_REQUEST,
@@ -122,7 +269,7 @@ describe('Groupings Reducer', () => {
       });
     });
 
-    describe('GetSuccess', () => {
+    describe('GET_SUCCESS', () => {
       it('Works', () => {
         const action = {
           type: constants.LIST_SUCCESS,
@@ -200,24 +347,152 @@ describe('Groupings Reducer', () => {
       });
 
       it('Has a unique set of ids', () => {
+        const action = {
+          type: constants.LIST_SUCCESS,
+          group: {},
+          normalize: {
+            result: [1, 2],
+          },
+        };
 
+        const nextState = reducer({ ids: [1, 2, 3] }, action);
+        expect(nextState.ids[0]).toBe(1);
+        expect(nextState.ids.length).toBe(3);
       });
 
       it('Handles \'reset\'', () => {
+        const action = {
+          type: constants.LIST_SUCCESS,
+          group: { reset: true },
+          normalize: {
+            result: [1],
+          },
+        };
 
+        const nextState = reducer({ ids: [1, 2, 3, 4] }, action);
+        expect(nextState.ids[0]).toBe(1);
+        expect(nextState.ids.length).toBe(1);
       });
 
-      it('Handles adding additional ids in the right di', () => {
+      it('Adds additional ids to the end of ids array with direction = next', () => {
+        const action = {
+          type: constants.LIST_SUCCESS,
+          group: { direction: 'next' },
+          normalize: {
+            result: [5, 6],
+          },
+        };
 
+        const nextState = reducer({ ids: [1, 2, 3, 4] }, action);
+        expect(nextState.ids.length).toBe(6);
+        expect(nextState.ids[3]).toBe(4);
+        expect(nextState.ids[4]).toBe(5);
+        expect(nextState.ids[5]).toBe(6);
+      });
+
+      it('Adds additional ids to the end of ids array with direction = prev', () => {
+        const action = {
+          type: constants.LIST_SUCCESS,
+          group: { direction: 'prev' },
+          normalize: {
+            result: [5, 6],
+          },
+        };
+
+        const nextState = reducer({ ids: [1, 2, 3, 4] }, action);
+        expect(nextState.ids.length).toBe(6);
+        expect(nextState.ids[0]).toBe(5);
+        expect(nextState.ids[1]).toBe(6);
+        expect(nextState.ids[2]).toBe(1);
       });
     });
   });
 
-  describe('Update Requests', () => {});
+  describe('UPDATE REQUESTS', () => {
+    it('Sets isLoading = true when a request is made', () => {
+      const firstAction = {
+        type: constants.UPDATE_REQUEST,
+        group: {},
+      };
 
-  describe('Delete Requests', () => {});
+      const nextState = reducer({}, firstAction);
+      expect(nextState.isLoading).toBe(true);
+    });
 
-  describe('Optimistic requests', () => {
+    it('Sets hasMadeRequest = true when a request is made', () => {
+      const firstAction = {
+        type: constants.UPDATE_REQUEST,
+        group: {},
+      };
+      const nextState = reducer({}, firstAction);
+      expect(nextState.hasMadeRequest).toBe(true);
+    });
+
+    it('Sets isLoading = false when a request is made', () => {
+      const firstAction = {
+        type: constants.UPDATE_SUCCESS,
+        group: {},
+      };
+      const nextState = reducer({}, firstAction);
+      expect(nextState.isLoading).toBe(false);
+    });
+  });
+
+  describe('DELETE REQUESTS', () => {
+    it('Decrements totalItems on success', () => {
+      const action = {
+        type: constants.DELETE_SUCCESS,
+        group: { },
+        normalize: {
+          result: 3,
+        },
+      };
+      const nextState = reducer({
+        ids: [
+          1, 2,
+        ],
+        totalItems: 5,
+      }, action);
+
+      expect(nextState.ids.length).toEqual(2);
+      expect(nextState.ids[0]).toEqual(1);
+      expect(nextState.totalItems).toEqual(5);
+
+      const nextNewState = reducer({
+        ids: [
+          1, 2, 3,
+        ],
+        totalItems: 5,
+      }, action);
+
+      expect(nextNewState.ids.length).toEqual(2);
+      expect(nextNewState.ids[0]).toEqual(1);
+      expect(nextNewState.ids[1]).toEqual(2);
+      expect(nextNewState.totalItems).toEqual(4);
+    });
+  
+    it('Removes the item on success', () => {
+      const action = {
+        type: constants.DELETE_SUCCESS,
+        group: { },
+        normalize: {
+          result: 2,
+        },
+      };
+      const nextState = reducer({
+        ids: [
+          1, 2,
+        ],
+        totalItems: 5,
+      }, action);
+
+      expect(nextState.ids.length).toEqual(1);
+      expect(nextState.ids[0]).toEqual(1);
+      expect(nextState.totalItems).toEqual(4);
+    });
+  });
+
+  describe('OPTIMISITC REQUESTS', () => {
     describe('Creates', () => {
       it('Works', () => {
         const action = {
@@ -286,7 +561,7 @@ describe('Groupings Reducer', () => {
       });
     });
 
-    it('Works with updates', () => {
+    it('Updates', () => {
       const newAction = {
         type: constants.OPTIMISTIC_REQUEST,
         group: {},

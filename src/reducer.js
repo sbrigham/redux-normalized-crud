@@ -73,26 +73,22 @@ export const groupingReducer = (reduxConst) => {
       case reduxConst.CREATE_REQUEST:
       case reduxConst.UPDATE_REQUEST:
       case reduxConst.DELETE_REQUEST: {
-        const override = {
+        return {
+          ...state,
           isLoading: true,
           hasMadeRequest: true,
           lastQuery: action.query ? action.query : null,
           totalItems,
         };
-        return {
-          ...state,
-          ...override,
-        };
       }
       case reduxConst.LIST_SUCCESS: {
         if (!Array.isArray(result)) return state;
-
-        const newIDs = result !== null && Array.isArray(result) ? result : [result];
+        const newIDs = result;
         const reset = 'reset' in group ? group.reset : false;
         let existingIds = [...state.ids];
+        
         if (reset) existingIds = [];
-
-        const ids = isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
+        const ids = !isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
         return Object.assign({}, state, {
           isLoading: false,
           ids: uniq(ids),
@@ -124,7 +120,6 @@ export const groupingReducer = (reduxConst) => {
       case reduxConst.CREATE_SUCCESS: {
         const reset = 'reset' in group ? group.reset : false;
         let existingIds = [...state.ids];
-        let newIds = [];
         if (reset) existingIds = [];
 
         // Swap out the temp "optimistic id" for the actual id
@@ -132,23 +127,22 @@ export const groupingReducer = (reduxConst) => {
           const tempIndex = existingIds.indexOf(meta.optimisticTransactionId);
           existingIds[tempIndex] = result;
         } else {
-          existingIds = [result, ...existingIds];
+          existingIds = isNext ? [...existingIds, result] : [result, ...existingIds];
         }
-
-        newIds = [...existingIds];
 
         return Object.assign({}, state, {
           isLoading: false,
-          ids: uniq(newIds),
-          totalItems: (totalItems ? totalItems : newIds.length),
+          ids: uniq(existingIds),
+          totalItems: totalItems ? totalItems + 1 : existingIds.length,
         });
       }
       case reduxConst.DELETE_SUCCESS: {
         const ids = state.ids.filter(id => id !== result);
+        const newTotal = ids.length !== state.ids.length ? state.totalItems - 1 : state.totalItems;
         return Object.assign({}, state, {
           isLoading: false,
           ids,
-          totalItems: state.totalItems ? state.totalItems - 1 : 0
+          totalItems: newTotal || ids.length,
         });
       }
       case reduxConst.LIST_FAILURE:
