@@ -59,7 +59,7 @@ export const groupingReducer = (reduxConst) => {
     const { normalize, group, removeEntity, meta = {} } = action;
     let result = [];
     let totalItems = state.totalItems || 0;
-    let direction = null;
+    let direction = 'next';
 
     if (!removeEntity && normalize && 'result' in normalize) result = normalize.result;
 
@@ -69,7 +69,6 @@ export const groupingReducer = (reduxConst) => {
     const isNext = direction === 'next';
 
     switch (action.type) {
-      case reduxConst.GET_REQUEST:
       case reduxConst.LIST_REQUEST:
       case reduxConst.CREATE_REQUEST:
       case reduxConst.UPDATE_REQUEST:
@@ -85,8 +84,7 @@ export const groupingReducer = (reduxConst) => {
           ...override,
         };
       }
-      case reduxConst.LIST_SUCCESS:
-      case reduxConst.GET_SUCCESS: {
+      case reduxConst.LIST_SUCCESS: {
         if (!Array.isArray(result)) return state;
 
         const newIDs = result !== null && Array.isArray(result) ? result : [result];
@@ -114,8 +112,6 @@ export const groupingReducer = (reduxConst) => {
         } else {
           if (existingIds.indexOf(result) === -1) {
             ids = isNext ? [...existingIds, result] : [result, ...existingIds];
-          } else {
-            ids = existingIds;
           }
         }
 
@@ -156,7 +152,6 @@ export const groupingReducer = (reduxConst) => {
         });
       }
       case reduxConst.LIST_FAILURE:
-      case reduxConst.GET_FAILURE:
       case reduxConst.CREATE_FAILURE:
       case reduxConst.UPDATE_SUCCESS:
       case reduxConst.UPDATE_FAILURE:
@@ -178,9 +173,6 @@ export const groupingReducer = (reduxConst) => {
       case reduxConst.LIST_REQUEST:
       case reduxConst.LIST_SUCCESS:
       case reduxConst.LIST_FAILURE:
-      case reduxConst.GET_REQUEST:
-      case reduxConst.GET_SUCCESS:
-      case reduxConst.GET_FAILURE:
       case reduxConst.CREATE_REQUEST:
       case reduxConst.CREATE_SUCCESS:
       case reduxConst.CREATE_FAILURE:
