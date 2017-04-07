@@ -36,7 +36,7 @@ export default ({
         onLoadRequest(promise);
         response = yield promise;
       }
-      if (onSuccess) yield put(onSuccess(response));
+      if (onSuccess) onSuccess(response);
 
       const { normalize, totalItems = null } = handleResponse(response, schema);
 
