@@ -23,11 +23,12 @@ export function registerEntity(config, schema) {
     onLoadRequest = () => { },
     onServerError = () => { },
     fetchConfigSelector = null,
+    readOnly = false,
   } = config;
   if (!handleResponse) throw new Error('A handleResponse property needs to be defined in the config object');
 
   const key = schema._key;
-  const constants = genConstants(key);
+  const constants = genConstants(key, readOnly);
   const creators = genCreators(constants);
   const sagas = genSagas({
     constants,
@@ -43,7 +44,7 @@ export function registerEntity(config, schema) {
     key,
     constants,
     creators,
-    sagas: sagas.init(restApi),
+    sagas: sagas.init(restApi, readOnly),
     entitySelector: entitySelector(key),
     groupingSelector: groupingSelector(key),
     config,

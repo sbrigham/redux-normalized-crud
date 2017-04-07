@@ -229,19 +229,22 @@ export default ({
       }));
     }
   };
-  
+
   return {
-    init: function (api) {
+    init: function (api, readOnly = false) {
       return function* () {
         if (!api) throw new Error('you must specify an api');
-        yield [
+        const readOnlyTasks = [
           takeEvery(constants.GET_REQUEST, getRequest, api, true),
           takeEvery(constants.LIST_REQUEST, getRequest, api, false),
-
+        ];
+        const cudTasks = [
           takeEvery(constants.CREATE_REQUEST, onCreateRequest, api),
           takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
           takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api),
         ];
+
+        yield readOnly ? readOnlyTasks : cudTasks.concat(readOnlyTasks);
       };
     },
   };

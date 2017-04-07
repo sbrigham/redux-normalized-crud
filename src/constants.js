@@ -5,8 +5,12 @@ export const genRSF = (action, name) => {
   }, {});
 };
 
-export default (name) => {
-  return ['GET', 'LIST', 'CREATE', 'UPDATE', 'DELETE', 'OPTIMISTIC'].reduce((acc, action) => {
+export default (name, readOnly = false) => {
+  let constants = [];
+  const readConstants = ['GET', 'LIST'];
+  const cudConstants = ['CREATE', 'UPDATE', 'DELETE', 'OPTIMISTIC'];
+  constants = readOnly ? readConstants : cudConstants.concat(readConstants);
+  return constants.reduce((acc, action) => {
     return Object.assign({}, acc, genRSF(action, name));
   }, {});
 };

@@ -25,6 +25,7 @@ fetchIntercept.register({
 setBaseUrl('https://jsonplaceholder.typicode.com/');
 
 export default {
+  readOnly: true,
   handleResponse: (response, schema) => {
     if (Array.isArray(response)) {
       return {
@@ -32,7 +33,7 @@ export default {
           skip: 1,
           randomData: 'yes',
         },
-        totalItems: response.length -1,
+        totalItems: response.length - 1,
         normalize: normalize(response, [schema]),
       };
     }
