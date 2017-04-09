@@ -8,4 +8,4 @@ export const {
   groupingSelector,
   entitySelector,
   sagas,
-} = registerEntity(config, new schema.Entity('comments'));
+} = registerEntity({ ...config, baseUrl: `${config.baseUrl}comments` }, new schema.Entity('comments'));

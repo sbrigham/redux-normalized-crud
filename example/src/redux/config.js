@@ -22,9 +22,11 @@ fetchIntercept.register({
     }
 });
 
-setBaseUrl('https://jsonplaceholder.typicode.com/');
+const baseUrl = 'https://jsonplaceholder.typicode.com/';
+setBaseUrl(baseUrl);
 
 export default {
+  baseUrl,
   readOnly: true,
   handleResponse: (response, schema) => {
     if (Array.isArray(response)) {

@@ -24,8 +24,12 @@ export function registerEntity(config, schema) {
     onServerError = () => { },
     fetchConfigSelector = null,
     readOnly = false,
+    baseUrl = null,
   } = config;
   if (!handleResponse) throw new Error('A handleResponse property needs to be defined in the config object');
+
+  let customApi = null;
+  if (baseUrl) { customApi = createApi(baseUrl); }
 
   const key = schema._key;
   const constants = genConstants(key, readOnly);
@@ -44,11 +48,11 @@ export function registerEntity(config, schema) {
     key,
     constants,
     creators,
-    sagas: sagas.init(restApi, readOnly),
+    sagas: sagas.init(customApi || restApi, readOnly),
     entitySelector: entitySelector(key),
     groupingSelector: groupingSelector(key),
     config,
-    restApi,
+    restApi: customApi || restApi,
   };
 
   registeredEntities[key] = registeredEntity;

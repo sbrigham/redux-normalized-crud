@@ -32,7 +32,6 @@ class App extends Component {
       },
     });
     this.props.getComments({
-      query: { url: 'comments' },
     });
   }
 

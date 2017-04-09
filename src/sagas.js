@@ -17,7 +17,7 @@ export default ({
     if (deferLoadRequest) return;
 
     const { path = {} } = action;
-    const { url, params = {} } = query;
+    const { url = '', params = {} } = query;
 
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
@@ -53,7 +53,7 @@ export default ({
   };
   const onCreateRequest = function* (api, action) {
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
-    const { url, payload = {} } = query;
+    const { url = '', payload = {} } = query;
 
     const optimisticTransactionId = uuid.v4();
     let fetchConfig = {};
@@ -116,7 +116,7 @@ export default ({
   };
   const onUpdateRequest = function* (api, action) {
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
-    const { payload = {}, url } = query;
+    const { payload = {}, url = '' } = query;
 
     if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this update request');
 
@@ -176,7 +176,7 @@ export default ({
 
   const onDeleteRequest = function* (api, action) {
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
-    const { payload = {}, url } = query;
+    const { payload = {}, url = '' } = query;
 
     if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this delete request');
 
