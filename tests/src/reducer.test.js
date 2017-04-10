@@ -2,12 +2,6 @@ import { normalize, schema } from 'normalizr';
 import { groupingReducer, defaultState } from '../../src/reducer';
 import genConstants from '../../src/constants';
 
-/*
-  Make sure direction gets in there.
-  Make sure metadata on every request makes sense
-  Make Optimistic more readable / remove entity stuff
-*/
-
 const constants = genConstants('events');
 const reducer = groupingReducer(constants);
 describe('Groupings Reducer', () => {
@@ -23,6 +17,14 @@ describe('Groupings Reducer', () => {
     const nextState = reducer(defaultState, action);
     expect(nextState.ids.length).toBe(0);
     expect(nextState).toEqual(defaultState);
+  });
+
+  it('Sets values when no group is provided', () => {
+    const action = { type: constants.LIST_REQUEST, group: {} };
+    const nextState = reducer({ ids: [] }, action);
+    expect(nextState.ids.length).toBe(0);
+    expect(nextState.isLoading).toBe(true);
+    expect(nextState.hasMadeRequest).toBe(true);
   });
 
   describe('CREATE REQUESTS', () => {
@@ -65,7 +67,7 @@ describe('Groupings Reducer', () => {
         expect(nextState.ids.length).toEqual(3);
         expect(nextState.ids[2]).toEqual(3);
       });
-      
+
       it('Handles direction next', () => {
         const action = {
           type: constants.CREATE_SUCCESS,
@@ -470,7 +472,7 @@ describe('Groupings Reducer', () => {
       expect(nextNewState.ids[1]).toEqual(2);
       expect(nextNewState.totalItems).toEqual(4);
     });
-  
+
     it('Removes the item on success', () => {
       const action = {
         type: constants.DELETE_SUCCESS,
@@ -515,7 +517,7 @@ describe('Groupings Reducer', () => {
         expect(nextState.ids[1]).toEqual(2);
         expect(nextState.ids[2]).toEqual(3);
       });
-     
+
       it('Works with direction - next', () => {
         const action = {
           type: constants.OPTIMISTIC_REQUEST,
@@ -582,6 +584,58 @@ describe('Groupings Reducer', () => {
       expect(afterState.ids[0]).toEqual(1);
       expect(afterState.ids[1]).toEqual(2);
       expect(afterState.ids[2]).toEqual(3);
+    });
+
+    it('Removes from grouping', () => {
+      const action = {
+        type: constants.OPTIMISTIC_REQUEST,
+        group: { by: { key: 'status', index: 'pending' } },
+        removeEntity: { id: 1 },
+      };
+      const nextState = reducer({
+        groups: {
+          byStatus: {
+            pending: {
+              ids: [1, 2],
+            },
+          },
+        },
+      }, action);
+
+      expect(nextState.groups.byStatus.pending.ids.length).toBe(1);
+      expect(nextState.groups.byStatus.pending.ids[0]).toBe(2);
+    });
+
+    it('Adds an id to one grouping and removes it from another', () => {
+      const action = {
+        type: constants.OPTIMISTIC_REQUEST,
+        group: {
+          by: { key: 'status', index: 'active' },
+          removeFromGrouping: {
+            key: 'status',
+            index: 'pending',
+          },
+        },
+        normalize: {
+          result: 1,
+        },
+        payload: { id: 1 },
+      };
+      const nextState = reducer({
+        groups: {
+          byStatus: {
+            pending: {
+              ids: [1, 2],
+            },
+          },
+        },
+      }, action);
+
+      expect(nextState.groups.byStatus.pending.ids.length).toBe(1);
+      expect(nextState.groups.byStatus.pending.ids[0]).toBe(2);
+
+      expect(nextState.groups.byStatus.active.ids.length).toBe(1);
+      expect(nextState.groups.byStatus.active.ids[0]).toBe(1);
     });
   });
 });

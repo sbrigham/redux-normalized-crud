@@ -31,8 +31,7 @@ class App extends Component {
         },
       },
     });
-    this.props.getComments({
-    });
+    this.props.getComments();
   }
 
   render() {

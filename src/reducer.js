@@ -86,7 +86,7 @@ export const groupingReducer = (reduxConst) => {
         const newIDs = result;
         const reset = 'reset' in group ? group.reset : false;
         let existingIds = [...state.ids];
-        
+
         if (reset) existingIds = [];
         const ids = !isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
         return Object.assign({}, state, {
