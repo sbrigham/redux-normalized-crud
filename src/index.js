@@ -5,7 +5,7 @@ import genConstants from './constants';
 import genSagas from './sagas';
 import createApi from './rest-api';
 import { groupingReducer, entitiesReducer } from './reducer';
-import { groupingSelector, entitySelector } from './selector';
+import { groupSelector, entitySelector } from './selector';
 
 require('isomorphic-fetch');
 
@@ -50,7 +50,7 @@ export function registerEntity(config, schema) {
     creators,
     sagas: sagas.init(customApi || restApi, readOnly),
     entitySelector: entitySelector(key),
-    groupingSelector: groupingSelector(key),
+    groupSelector: groupSelector(key),
     config,
     restApi: customApi || restApi,
   };
@@ -59,7 +59,7 @@ export function registerEntity(config, schema) {
   return registeredEntity;
 }
 
-export { groupingSelector } from './selector';
+export { groupSelector } from './selector';
 
 export function combineWithCrudReducers(reducerObjects) {
   const groupingReducers = {};

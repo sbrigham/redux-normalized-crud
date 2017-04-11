@@ -5,7 +5,7 @@ import { defaultState, groupByKey } from './reducer';
 const groupings = state => ensureState(state.crud).groupings;
 const entities = state => ensureState(state.crud).entities;
 
-export const groupingSelector = resourceKey => (grouping = null) => createSelector([groupings], (groupings) => {
+export const groupSelector = resourceKey => (grouping = null) => createSelector([groupings], (groupings) => {
   if (!groupings[resourceKey]) return defaultState;
 
   if (grouping) {
