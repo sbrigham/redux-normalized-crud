@@ -30,7 +30,7 @@ export default ({
       onLoadRequest(promise);
 
       const response = yield promise;
-      if (onSuccess) yield put(onSuccess(response));
+      if (onSuccess) onSuccess(response);
       const { normalize, totalItems = null, meta = {} } = handleResponse(response, schema);
 
       const successAction = loadSingle ? creators.getSuccess : creators.listSuccess;
