@@ -36,6 +36,7 @@ export default ({
       const successAction = loadSingle ? creators.getSuccess : creators.listSuccess;
 
       yield put(successAction({
+        query,
         response,
         group,
         normalize,

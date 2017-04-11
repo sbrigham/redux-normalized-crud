@@ -5,7 +5,7 @@ import config from './config';
 export const {
   constants,
   creators,
-  groupingSelector,
+  groupSelector,
   entitySelector,
   sagas,
 } = registerEntity({ ...config, baseUrl: `${config.baseUrl}comments` }, new schema.Entity('comments'));

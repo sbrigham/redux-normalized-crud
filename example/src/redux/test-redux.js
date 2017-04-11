@@ -6,6 +6,6 @@ export const {
   sagas,
   constants,
   creators,
-  groupingSelector,
+  groupSelector,
   entitySelector,
 } = registerEntity(config, new schema.Entity('test'));

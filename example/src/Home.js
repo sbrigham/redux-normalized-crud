@@ -5,7 +5,7 @@ import logo from './logo.svg';
 import './App.css';
 import {
   creators as postCreators,
-  groupingSelector as pagedPosts,
+  groupSelector as pagedPosts,
   entitySelector as postSelector,
 } from './redux/post-redux';
 import { creators as commentCreators } from './redux/comment-redux';
