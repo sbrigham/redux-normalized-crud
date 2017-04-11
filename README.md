@@ -1,6 +1,6 @@
 # redux-normalized-crud
 
-## Please note: This is still in beta while I work out an api
+## Updated DOCS coming soon
 
 [![npm version](https://img.shields.io/npm/v/redux-normalized-crud.svg)](https://www.npmjs.com/package/redux-normalized-crud)
 
