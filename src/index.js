@@ -59,7 +59,7 @@ export function registerEntity(config, schema) {
   return registeredEntity;
 }
 
-export { groupSelector } from './selector';
+export { groupSelector, entitySelector } from './selector';
 
 export function combineWithCrudReducers(reducerObjects) {
   const groupingReducers = {};
