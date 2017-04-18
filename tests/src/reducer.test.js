@@ -286,6 +286,22 @@ describe('Groupings Reducer', () => {
         expect(nextState.ids.length).toBe(1);
       });
 
+      it('Sets totalItems from response metadata', () => {
+        const action = {
+          type: constants.LIST_SUCCESS,
+          group: {
+            reset: true,
+          },
+          meta: {
+            totalItems: 0,
+          },
+        };
+
+        const nextState = reducer({ ids: [1, 2, 3], totalItems: 3 }, action);
+        expect(nextState.ids.length).toBe(0);
+        expect(nextState.totalItems).toBe(0);
+      });
+
       it('Does not group a response if it is not an array', () => {
         const action = {
           type: constants.LIST_SUCCESS,
