@@ -54,7 +54,7 @@ export default ({
   };
   const onCreateRequest = function* (api, action) {
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
-    const { url = '', payload = {} } = query;
+    const { url = '', payload = {}, params = {} } = query;
 
     const optimisticTransactionId = uuid.v4();
     let fetchConfig = {};
@@ -81,7 +81,7 @@ export default ({
         }));
       }
 
-      const response = yield call(api.post, url, payload, query, fetchConfig);
+      const response = yield call(api.post, url, payload, params, fetchConfig);
       const { normalize, meta } = handleResponse(response, schema);
 
       yield put(creators.createSuccess({
@@ -117,7 +117,7 @@ export default ({
   };
   const onUpdateRequest = function* (api, action) {
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
-    const { payload = {}, url = '' } = query;
+    const { payload = {}, url = '', params = {} } = query;
 
     if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this update request');
 
@@ -144,7 +144,7 @@ export default ({
         }));
       }
 
-      const response = yield call(api.put, url, payload, query, fetchConfig);
+      const response = yield call(api.put, url, payload, params, fetchConfig);
 
       yield put(creators.updateSuccess({
         query,
@@ -177,7 +177,7 @@ export default ({
 
   const onDeleteRequest = function* (api, action) {
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
-    const { payload = {}, url = '' } = query;
+    const { payload = {}, url = '', params = {} } = query;
 
     if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this delete request');
 
@@ -201,7 +201,7 @@ export default ({
           },
         }));
       }
-      const response = yield call(api.delete, url, payload, query, fetchConfig);
+      const response = yield call(api.delete, url, payload, params, fetchConfig);
       yield put(creators.deleteSuccess({
         group,
         meta: {
