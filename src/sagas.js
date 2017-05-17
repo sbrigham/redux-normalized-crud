@@ -1,4 +1,4 @@
-import { select, put, call, takeEvery } from 'redux-saga/effects';
+import { select, put, call, takeEvery, all } from 'redux-saga/effects';
 import { BEGIN, COMMIT, REVERT } from 'redux-optimistic-ui';
 import uuid from 'uuid';
 
@@ -15,7 +15,6 @@ export default ({
   const getRequest = function* (api, loadSingle = false, action) {
     const { query = {}, group = {}, onError, onSuccess, deferLoadRequest = false } = action;
     if (deferLoadRequest) return;
-
     const { path = {} } = action;
     const { url = '', params = {} } = query;
 
@@ -245,7 +244,7 @@ export default ({
           takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api),
         ];
 
-        yield readOnly ? readOnlyTasks : cudTasks.concat(readOnlyTasks);
+        yield readOnly ? all(readOnlyTasks) : all(cudTasks.concat(readOnlyTasks));
       };
     },
   };
