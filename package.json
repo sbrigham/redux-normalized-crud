@@ -1,6 +1,6 @@
 {
   "name": "redux-normalized-crud",
-  "version": "1.0.0-beta.8",
+  "version": "1.0.0-beta.9",
   "description": "An attempt to standardize restful calls within a growing redux application",
   "main": "lib/index.js",
   "scripts": {
@@ -31,6 +31,9 @@
     "url": "https://github.com/sbrigham/redux-normalized-crud/issues"
   },
   "homepage": "https://github.com/sbrigham/redux-normalized-crud#readme",
+  "peerDependencies": {
+    "redux-saga": "^0.15.x"
+  },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.4",
