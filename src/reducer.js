@@ -48,6 +48,7 @@ export const defaultState = {
   hasError: false,
   totalItems: 0,
   meta: {},
+  hasMadeSuccess: false,
 };
 
 export const groupByKey = (key) => {
@@ -90,6 +91,7 @@ export const groupingReducer = (reduxConst) => {
         if (reset) existingIds = [];
         const ids = !isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
         return Object.assign({}, state, {
+          hasMadeSuccess: true,
           isLoading: false,
           ids: uniq(ids),
           totalItems: (totalItems ? totalItems : ids.length),

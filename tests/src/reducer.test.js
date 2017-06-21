@@ -286,6 +286,19 @@ describe('Groupings Reducer', () => {
         expect(nextState.ids.length).toBe(1);
       });
 
+      it('Sets hasMadeSuccess to be true', () => {
+        const action = {
+          type: constants.LIST_SUCCESS,
+          group: {},
+          normalize: {
+            result: [1],
+          },
+        };
+
+        const nextState = reducer({ ids: [] }, action);
+        expect(nextState.hasMadeSuccess).toBe(true);
+      });
+
       it('Sets totalItems from response metadata', () => {
         const action = {
           type: constants.LIST_SUCCESS,
@@ -349,6 +362,7 @@ describe('Groupings Reducer', () => {
             byStatus: {
               pending: {
                 ...defaultState,
+                hasMadeSuccess: true,
                 isLoading: false,
                 totalItems: 2,
                 ids: [
