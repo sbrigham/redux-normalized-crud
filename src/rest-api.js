@@ -77,7 +77,7 @@ export default (base) => {
         },
       })
       .then(handleErrors)
-      .then(response => response.json());
+      .then(() => 'ok');
     },
     setBaseUrl,
   };

@@ -63,7 +63,6 @@ export const groupingReducer = (reduxConst) => {
     let direction = 'next';
 
     if (!removeEntity && normalize && 'result' in normalize) result = normalize.result;
-
     if (meta && meta.totalItems !== undefined) totalItems = meta.totalItems;
 
     if (group && 'direction' in group) direction = group.direction;

@@ -194,6 +194,7 @@ export default ({
               id: optimisticTransactionId,
             },
           },
+          group,
           removeEntity: {
             id: payload.id,
             entityName: resourceUrl,
@@ -210,7 +211,6 @@ export default ({
             id: optimisticTransactionId,
           } : null,
         },
-        normalize: { result: payload },
       }));
       if (onSuccess) onSuccess(response);
     } catch (error) {
