@@ -131,10 +131,16 @@ export const groupingReducer = (reduxConst) => {
           existingIds = isNext ? [...existingIds, result] : [result, ...existingIds];
         }
 
+        const isOptimistic = meta && meta.optimisticTransactionId;
+        let newTotal = totalItems || existingIds.length;
+        if (!isOptimistic) {
+          newTotal += 1;
+        }
+
         return Object.assign({}, state, {
           isLoading: false,
           ids: uniq(existingIds),
-          totalItems: totalItems ? totalItems + 1 : existingIds.length,
+          totalItems: newTotal,
         });
       }
       case reduxConst.DELETE_SUCCESS: {
