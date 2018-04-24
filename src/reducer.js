@@ -1,4 +1,4 @@
-import { uniq } from 'lodash/fp';
+import { uniq } from './utils';
 
 export const entitiesReducer = (state = {}, action) => {
   const { payload, normalize, meta, removeEntity } = action;

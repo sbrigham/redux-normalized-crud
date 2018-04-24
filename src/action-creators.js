@@ -1,4 +1,4 @@
-import camelCase from 'lodash/fp/camelCase';
+import camelCase from 'lodash.camelcase';
 
 export default (constants) => {
   if (constants !== undefined) {
