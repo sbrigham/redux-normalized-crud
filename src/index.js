@@ -20,16 +20,20 @@ export function setBaseUrl(baseUrl) {
 export function registerEntity(config, schema) {
   const {
     handleResponse,
-    onLoadRequest = () => { },
-    onServerError = () => { },
+    onLoadRequest = () => {},
+    onServerError = () => {},
     fetchConfigSelector = null,
     readOnly = false,
     baseUrl = null,
   } = config;
-  if (!handleResponse) throw new Error('A handleResponse property needs to be defined in the config object');
+  if (!handleResponse) {
+    throw new Error('A handleResponse property needs to be defined in the config object');
+  }
 
   let customApi = null;
-  if (baseUrl) { customApi = createApi(baseUrl); }
+  if (baseUrl) {
+    customApi = createApi(baseUrl);
+  }
 
   const key = schema._key;
   const constants = genConstants(key, readOnly);
@@ -61,6 +65,11 @@ export function registerEntity(config, schema) {
 
 export { groupSelector, entitySelector } from './selector';
 
+export function getCreators(key) {
+  const constants = genConstants(key, true);
+  return genCreators(constants);
+}
+
 export function combineWithCrudReducers(reducerObjects) {
   const groupingReducers = {};
 
@@ -73,7 +82,8 @@ export function combineWithCrudReducers(reducerObjects) {
     crud: optimistic(
       combineReducers({
         entities: entitiesReducer,
-        groupings: combineReducers(groupingReducers),
+        groupings:
+          Object.keys(groupingReducers).length > 0 ? combineReducers(groupingReducers) : () => ({}),
       })
     ),
   });

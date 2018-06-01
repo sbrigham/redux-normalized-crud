@@ -3,7 +3,11 @@ import { uniq } from './utils';
 export const entitiesReducer = (state = {}, action) => {
   const { payload, normalize, meta, removeEntity } = action;
   let entities;
-  if (removeEntity && removeEntity.entityName in state && removeEntity.id in state[removeEntity.entityName]) {
+  if (
+    removeEntity &&
+    removeEntity.entityName in state &&
+    removeEntity.id in state[removeEntity.entityName]
+  ) {
     const newEntities = { ...state[removeEntity.entityName] };
     delete newEntities[removeEntity.id];
     const newState = {
@@ -27,7 +31,12 @@ export const entitiesReducer = (state = {}, action) => {
         return a;
       }, {});
       const existingEntities = state[key];
-      if (meta && meta.optimisticTransactionId && normalize.result && normalize.result != meta.optimisticTransactionId) {
+      if (
+        meta &&
+        meta.optimisticTransactionId &&
+        normalize.result &&
+        normalize.result != meta.optimisticTransactionId
+      ) {
         delete existingEntities[meta.optimisticTransactionId];
       }
 
@@ -51,9 +60,7 @@ export const defaultState = {
   hasMadeSuccess: false,
 };
 
-export const groupByKey = (key) => {
-  return `by${key.charAt(0).toUpperCase() + key.slice(1)}`;
-};
+export const groupByKey = key => `by${key.charAt(0).toUpperCase() + key.slice(1)}`;
 
 export const groupingReducer = (reduxConst) => {
   const reducer = (state = defaultState, action) => {
@@ -93,7 +100,7 @@ export const groupingReducer = (reduxConst) => {
           hasMadeSuccess: true,
           isLoading: false,
           ids: uniq(ids),
-          totalItems: (totalItems ? totalItems : ids.length),
+          totalItems: totalItems || ids.length,
           meta: meta.responseMeta ? meta.responseMeta : state.meta,
         });
       }
@@ -105,11 +112,9 @@ export const groupingReducer = (reduxConst) => {
         let ids = existingIds;
         if (removeEntity && ids.indexOf(removeEntity.id) !== -1) {
           ids.splice(ids.indexOf(removeEntity.id), 1);
-          totalItems = totalItems - 1;
-        } else {
-          if (existingIds.indexOf(result) === -1) {
-            ids = isNext ? [...existingIds, result] : [result, ...existingIds];
-          }
+          totalItems -= 1;
+        } else if (existingIds.indexOf(result) === -1) {
+          ids = isNext ? [...existingIds, result] : [result, ...existingIds];
         }
 
         return Object.assign({}, state, {
@@ -124,7 +129,11 @@ export const groupingReducer = (reduxConst) => {
         if (reset) existingIds = [];
 
         // Swap out the temp "optimistic id" for the actual id
-        if (meta && meta.optimisticTransactionId && existingIds.indexOf(meta.optimisticTransactionId) !== -1) {
+        if (
+          meta &&
+          meta.optimisticTransactionId &&
+          existingIds.indexOf(meta.optimisticTransactionId) !== -1
+        ) {
           const tempIndex = existingIds.indexOf(meta.optimisticTransactionId);
           existingIds[tempIndex] = result;
         } else {
@@ -186,21 +195,43 @@ export const groupingReducer = (reduxConst) => {
       case reduxConst.OPTIMISTIC_REQUEST: {
         const { by, removeFromGrouping = false } = group;
         if (by) {
-          if (group && !('by' in group)) throw new Error(`"by" must be specified in the form by: { index: number, key: string}. For action type: ${action.type} `);
-          if (group.by && !('key' in group.by)) throw new Error(`A key as a string must be specified in your by. For action type: ${action.type}`);
-          if (group.by && !('index' in group.by)) throw new Error(`An index as an int/string must be specified in your by. For action type: ${action.type}`);
+          if (group && !('by' in group)) {
+            throw new Error(
+              `"by" must be specified in the form by: { index: number, key: string}. For action type: ${
+                action.type
+              } `
+            );
+          }
+          if (group.by && !('key' in group.by)) {
+            throw new Error(
+              `A key as a string must be specified in your by. For action type: ${action.type}`
+            );
+          }
+          if (group.by && !('index' in group.by)) {
+            throw new Error(
+              `An index as an int/string must be specified in your by. For action type: ${
+                action.type
+              }`
+            );
+          }
 
           const { key, index } = by;
           const byKey = groupByKey(key);
 
           const existingGroups = state.groups ? state.groups[byKey] : {};
-          const existingValues = state.groups && state.groups[byKey] ? state.groups[byKey][index] : defaultState;
+          const existingValues =
+            state.groups && state.groups[byKey] ? state.groups[byKey][index] : defaultState;
           const updatedGroups = {};
 
           if (removeFromGrouping && action.payload && action.payload.id > -1) {
             const { key: keyToRemove, index: indexToRemove } = removeFromGrouping;
-            const valuesToRemove = state.groups ? state.groups[groupByKey(keyToRemove)][indexToRemove] : { ids: [] };
-            updatedGroups[indexToRemove] = reducer(valuesToRemove, { ...action, removeEntity: { id: action.payload.id } });
+            const valuesToRemove = state.groups
+              ? state.groups[groupByKey(keyToRemove)][indexToRemove]
+              : { ids: [] };
+            updatedGroups[indexToRemove] = reducer(valuesToRemove, {
+              ...action,
+              removeEntity: { id: action.payload.id },
+            });
           }
           return {
             ...state,
@@ -214,7 +245,7 @@ export const groupingReducer = (reduxConst) => {
             },
           };
         }
-        let { groups, ...everythingElse } = state;
+        const { groups, ...everythingElse } = state;
         everythingElse = { ids: [], ...everythingElse };
         return {
           groups,

@@ -29,21 +29,25 @@ export default ({
       onLoadRequest(promise);
 
       const response = yield promise;
+
       if (onSuccess) onSuccess(response);
-      const { normalize, totalItems = null, meta = {} } = handleResponse(response, schema);
+
+      const { normalize, totalItems = null, meta = {} } = handleResponse(response.data, schema);
 
       const successAction = loadSingle ? creators.getSuccess : creators.listSuccess;
 
-      yield put(successAction({
-        query,
-        response,
-        group,
-        normalize,
-        meta: {
-          totalItems,
-          responseMeta: meta,
-        },
-      }));
+      yield put(
+        successAction({
+          query,
+          response,
+          group,
+          normalize,
+          meta: {
+            totalItems,
+            responseMeta: meta,
+          },
+        })
+      );
     } catch (error) {
       if (onError) onError(error);
       onServerError(error);
@@ -61,64 +65,76 @@ export default ({
 
     try {
       if (optimistic) {
-        const {
-          normalize: optimisticNormalize,
-          meta = {},
-        } = handleResponse({ id: optimisticTransactionId, ...payload }, schema);
-        yield put(creators.optimisticRequest({
-          meta: {
-            optimisticTransactionId,
-            optimistic: {
-              type: BEGIN,
-              id: optimisticTransactionId,
+        const { normalize: optimisticNormalize, meta = {} } = handleResponse(
+          { id: optimisticTransactionId, ...payload },
+          schema
+        );
+        yield put(
+          creators.optimisticRequest({
+            meta: {
+              optimisticTransactionId,
+              optimistic: {
+                type: BEGIN,
+                id: optimisticTransactionId,
+              },
+              responseMeta: meta,
             },
-            responseMeta: meta,
-          },
-          group,
-          payload,
-          normalize: optimisticNormalize,
-        }));
+            group,
+            payload,
+            normalize: optimisticNormalize,
+          })
+        );
       }
 
       const response = yield call(api.post, url, payload, params, fetchConfig);
-      const { normalize, meta } = handleResponse(response, schema);
+      const { normalize, meta } = handleResponse(response.data, schema);
 
-      yield put(creators.createSuccess({
-        query,
-        group,
-        response,
-        normalize,
-        meta: {
-          optimisticTransactionId,
-          optimistic: optimistic ? {
-            type: COMMIT,
-            id: optimisticTransactionId,
-          } : null,
-          responseMeta: meta,
-        },
-      }));
+      yield put(
+        creators.createSuccess({
+          query,
+          group,
+          response,
+          normalize,
+          meta: {
+            optimisticTransactionId,
+            optimistic: optimistic
+              ? {
+                type: COMMIT,
+                id: optimisticTransactionId,
+              }
+              : null,
+            responseMeta: meta,
+          },
+        })
+      );
       if (onSuccess) onSuccess(response);
     } catch (error) {
       onServerError(error);
       if (onError) onError(error);
-      yield put(creators.createFailure({
-        error,
-        group,
-        meta: {
-          optimisticTransactionId,
-          optimistic: optimistic ? {
-            type: REVERT,
-            id: optimisticTransactionId,
-          } : null,
-        },
-      }));
+      yield put(
+        creators.createFailure({
+          error,
+          group,
+          meta: {
+            optimisticTransactionId,
+            optimistic: optimistic
+              ? {
+                type: REVERT,
+                id: optimisticTransactionId,
+              }
+              : null,
+          },
+        })
+      );
     }
   };
   const onUpdateRequest = function* (api, action) {
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
     const { payload = {}, url = '', params = {} } = query;
 
-    if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this update request');
+    if (payload.id === undefined) {
+      throw new Error('You need to specify an id on query.payload this update request');
+    }
 
     const optimisticTransactionId = uuid.v4();
     let fetchConfig = {};
@@ -127,50 +143,60 @@ export default ({
     try {
       if (optimistic) {
         const { normalize: optimisticNormalize, meta = {} } = handleResponse(payload, schema);
-        yield put(creators.optimisticRequest({
-          meta: {
-            optimisticTransactionId,
-            optimistic: {
-              type: BEGIN,
-              id: optimisticTransactionId,
+        yield put(
+          creators.optimisticRequest({
+            meta: {
+              optimisticTransactionId,
+              optimistic: {
+                type: BEGIN,
+                id: optimisticTransactionId,
+              },
+              responseMeta: meta,
             },
-            responseMeta: meta,
-          },
-          query,
-          group,
-          payload,
-          normalize: optimisticNormalize,
-        }));
+            query,
+            group,
+            payload,
+            normalize: optimisticNormalize,
+          })
+        );
       }
 
       const response = yield call(api.put, url, payload, params, fetchConfig);
 
-      yield put(creators.updateSuccess({
-        query,
-        group,
-        response,
-        meta: {
-          optimisticTransactionId,
-          optimistic: optimistic ? {
-            type: COMMIT,
-            id: optimisticTransactionId,
-          } : null,
-        },
-      }));
+      yield put(
+        creators.updateSuccess({
+          query,
+          group,
+          response,
+          meta: {
+            optimisticTransactionId,
+            optimistic: optimistic
+              ? {
+                type: COMMIT,
+                id: optimisticTransactionId,
+              }
+              : null,
+          },
+        })
+      );
       if (onSuccess) onSuccess(response);
     } catch (error) {
       onServerError(error);
       if (onError) onError(error);
-      yield put(creators.updateFailure({
-        error,
-        meta: {
-          optimisticTransactionId,
-          optimistic: optimistic ? {
-            type: REVERT,
-            id: optimisticTransactionId,
-          } : null,
-        },
-      }));
+      yield put(
+        creators.updateFailure({
+          error,
+          meta: {
+            optimisticTransactionId,
+            optimistic: optimistic
+              ? {
+                type: REVERT,
+                id: optimisticTransactionId,
+              }
+              : null,
+          },
+        })
+      );
     }
   };
 
@@ -178,7 +204,9 @@ export default ({
     const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
     const { payload = {}, url = '', params = {} } = query;
 
-    if (payload.id === undefined) throw new Error('You need to specify an id on query.payload this delete request');
+    if (payload.id === undefined) {
+      throw new Error('You need to specify an id on query.payload this delete request');
+    }
 
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
@@ -186,52 +214,62 @@ export default ({
     const optimisticTransactionId = uuid.v4();
     try {
       if (optimistic) {
-        yield put(creators.optimisticRequest({
-          meta: {
-            optimisticTransactionId,
-            optimistic: {
-              type: BEGIN,
-              id: optimisticTransactionId,
+        yield put(
+          creators.optimisticRequest({
+            meta: {
+              optimisticTransactionId,
+              optimistic: {
+                type: BEGIN,
+                id: optimisticTransactionId,
+              },
             },
-          },
-          group,
-          removeEntity: {
-            id: payload.id,
-            entityName: resourceUrl,
-          },
-        }));
+            group,
+            removeEntity: {
+              id: payload.id,
+              entityName: resourceUrl,
+            },
+          })
+        );
       }
       const response = yield call(api.delete, url, payload, params, fetchConfig);
-      yield put(creators.deleteSuccess({
-        group,
-        meta: {
-          optimisticTransactionId,
-          optimistic: optimistic ? {
-            type: COMMIT,
-            id: optimisticTransactionId,
-          } : null,
-        },
-      }));
+      yield put(
+        creators.deleteSuccess({
+          group,
+          meta: {
+            optimisticTransactionId,
+            optimistic: optimistic
+              ? {
+                type: COMMIT,
+                id: optimisticTransactionId,
+              }
+              : null,
+          },
+        })
+      );
       if (onSuccess) onSuccess(response);
     } catch (error) {
       onServerError(error);
       if (onError) onError(error);
-      yield put(creators.deleteFailure({
-        error,
-        group,
-        meta: {
-          optimisticTransactionId,
-          optimistic: optimistic ? {
-            type: REVERT,
-            id: optimisticTransactionId,
-          } : null,
-        },
-      }));
+      yield put(
+        creators.deleteFailure({
+          error,
+          group,
+          meta: {
+            optimisticTransactionId,
+            optimistic: optimistic
+              ? {
+                type: REVERT,
+                id: optimisticTransactionId,
+              }
+              : null,
+          },
+        })
+      );
     }
   };
 
   return {
-    init: function (api, readOnly = false) {
+    init(api, readOnly = false) {
       return function* () {
         if (!api) throw new Error('you must specify an api');
         const readOnlyTasks = [

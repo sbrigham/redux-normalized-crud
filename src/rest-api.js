@@ -1,5 +1,5 @@
 import Qs from 'qs';
-import CustomError from './errors';
+import axios from 'axios';
 
 const defaultHeaders = {
   'Cache-Control': 'no-cache',
@@ -9,31 +9,24 @@ const defaultHeaders = {
 
 export default (base) => {
   let baseUrl = base || '/';
-  const handleErrors = (response) => {
-    if (!response.ok) throw new CustomError(response);
-    return response;
-  };
-
   const setBaseUrl = (newBaseUrl) => {
     baseUrl = newBaseUrl;
   };
 
   const get = (url, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
+    return axios.get(`${baseUrl}${url}?${Qs.stringify(params)}`, {
       ...config,
       headers: {
         ...defaultHeaders,
         ...overrideHeaders,
       },
-    })
-    .then(handleErrors)
-    .then(response => response.json());
+    });
   };
 
   const post = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
+    return axios.post(`${baseUrl}${url}?${Qs.stringify(params)}`, {
       method: 'POST',
       body: JSON.stringify(body),
       ...config,
@@ -41,14 +34,12 @@ export default (base) => {
         ...defaultHeaders,
         ...overrideHeaders,
       },
-    })
-    .then(handleErrors)
-    .then(response => response.json());
+    });
   };
 
   const put = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
+    return axios.put(`${baseUrl}${url}?${Qs.stringify(params)}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       ...config,
@@ -56,9 +47,7 @@ export default (base) => {
         ...defaultHeaders,
         ...overrideHeaders,
       },
-    })
-    .then(handleErrors)
-    .then(response => response.json());
+    });
   };
 
   return {
@@ -67,7 +56,7 @@ export default (base) => {
     put,
     delete: (url, body, params, config = {}) => {
       const overrideHeaders = config.headers || {};
-      fetch(`${baseUrl}${url}?${Qs.stringify(params)}`, {
+      axios.delete(`${baseUrl}${url}?${Qs.stringify(params)}`, {
         method: 'DELETE',
         body: JSON.stringify(body),
         ...config,
@@ -75,9 +64,7 @@ export default (base) => {
           ...defaultHeaders,
           ...overrideHeaders,
         },
-      })
-      .then(handleErrors)
-      .then(() => 'ok');
+      });
     },
     setBaseUrl,
   };
