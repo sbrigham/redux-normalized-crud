@@ -5,7 +5,7 @@ import genConstants from '../../src/constants';
 const constants = genConstants('events');
 const reducer = groupingReducer(constants);
 describe('Groupings Reducer', () => {
-  it('Does not do anything for GET_REQUEST, GET_SUCCESS', () => {
+  it('Does works with GET_REQUEST, GET_SUCCESS', () => {
     const action = {
       type: constants.GET_SUCCESS,
       group: {},
@@ -15,8 +15,7 @@ describe('Groupings Reducer', () => {
     };
 
     const nextState = reducer(defaultState, action);
-    expect(nextState.ids.length).toBe(0);
-    expect(nextState).toEqual(defaultState);
+    expect(nextState.ids.length).toBe(1);
   });
 
   it('Sets values when no group is provided', () => {
@@ -57,12 +56,13 @@ describe('Groupings Reducer', () => {
             result: 3,
           },
         };
-        const nextState = reducer({
-          ids: [
-            1, 2,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: [1, 2],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.ids.length).toEqual(3);
         expect(nextState.ids[2]).toEqual(3);
@@ -76,12 +76,13 @@ describe('Groupings Reducer', () => {
             result: 3,
           },
         };
-        const nextState = reducer({
-          ids: [
-            1, 2,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: [1, 2],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.ids.length).toEqual(3);
         expect(nextState.ids[2]).toEqual(3);
@@ -95,18 +96,19 @@ describe('Groupings Reducer', () => {
             result: 3,
           },
         };
-        const nextState = reducer({
-          ids: [
-            1, 2,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: [1, 2],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.ids.length).toEqual(3);
         expect(nextState.ids[0]).toEqual(3);
       });
 
-      it('Handles \'reset\'', () => {
+      it("Handles 'reset'", () => {
         const action = {
           type: constants.CREATE_SUCCESS,
           group: { reset: true },
@@ -114,12 +116,13 @@ describe('Groupings Reducer', () => {
             result: 3,
           },
         };
-        const nextState = reducer({
-          ids: [
-            1, 2, 3, 4,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: [1, 2, 3, 4],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.ids.length).toEqual(1);
         expect(nextState.ids[0]).toEqual(3);
@@ -136,42 +139,16 @@ describe('Groupings Reducer', () => {
             optimisticTransactionId: 'abc123',
           },
         };
-        const nextState = reducer({
-          ids: [
-            'abc123', 2,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: ['abc123', 2],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.ids.length).toEqual(2);
         expect(nextState.ids[0]).toEqual(3);
-      });
-
-      it('Increments totalItems by 1', () => {
-        const action = {
-          type: constants.CREATE_SUCCESS,
-          group: { direction: 'next' },
-          normalize: {
-            result: 3,
-          },
-        };
-        const nextState = reducer({
-          ids: [
-            1, 2,
-          ],
-          totalItems: 5,
-        }, action);
-
-        expect(nextState.ids.length).toEqual(3);
-        expect(nextState.totalItems).toEqual(6);
-
-        const anotherNextState = reducer({
-          ids: [
-            1, 2,
-          ],
-        }, action);
-        expect(anotherNextState.ids.length).toEqual(3);
-        expect(anotherNextState.totalItems).toEqual(3);
       });
     });
   });
@@ -191,20 +168,14 @@ describe('Groupings Reducer', () => {
       const firstAction = {
         type: constants.LIST_REQUEST,
         group: {
-          by: {
-            key: 'status',
-            index: 'pending',
-          },
+          byKey: 'status_pending',
         },
       };
 
       const secondAction = {
         ...firstAction,
         group: {
-          by: {
-            key: 'status',
-            index: 'accepted',
-          },
+          byKey: 'status_accepted',
         },
       };
 
@@ -212,17 +183,15 @@ describe('Groupings Reducer', () => {
       const nextStateAgain = reducer(nextState, secondAction);
       expect(nextStateAgain).toEqual({
         groups: {
-          byStatus: {
-            pending: {
-              ...defaultState,
-              isLoading: true,
-              hasMadeRequest: true,
-            },
-            accepted: {
-              ...defaultState,
-              isLoading: true,
-              hasMadeRequest: true,
-            },
+          by_status_pending: {
+            ...defaultState,
+            isLoading: true,
+            hasMadeRequest: true,
+          },
+          by_status_accepted: {
+            ...defaultState,
+            isLoading: true,
+            hasMadeRequest: true,
           },
         },
       });
@@ -232,20 +201,14 @@ describe('Groupings Reducer', () => {
       const firstAction = {
         type: constants.LIST_REQUEST,
         group: {
-          by: {
-            key: 'status',
-            index: 'pending',
-          },
+          byKey: 'status_pending',
         },
       };
 
       const secondAction = {
         ...firstAction,
         group: {
-          by: {
-            key: 'user',
-            index: '1',
-          },
+          byKey: 'user_1',
         },
       };
 
@@ -253,19 +216,15 @@ describe('Groupings Reducer', () => {
       const nextStateAgain = reducer(nextState, secondAction);
       expect(nextStateAgain).toEqual({
         groups: {
-          byStatus: {
-            pending: {
-              ...defaultState,
-              isLoading: true,
-              hasMadeRequest: true,
-            },
+          by_status_pending: {
+            ...defaultState,
+            isLoading: true,
+            hasMadeRequest: true,
           },
-          byUser: {
-            1: {
-              ...defaultState,
-              isLoading: true,
-              hasMadeRequest: true,
-            },
+          by_user_1: {
+            ...defaultState,
+            isLoading: true,
+            hasMadeRequest: true,
           },
         },
       });
@@ -274,7 +233,7 @@ describe('Groupings Reducer', () => {
     describe('GET_SUCCESS', () => {
       it('Works', () => {
         const action = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: {},
           normalize: {
             result: [1],
@@ -288,7 +247,7 @@ describe('Groupings Reducer', () => {
 
       it('Sets hasMadeSuccess to be true', () => {
         const action = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: {},
           normalize: {
             result: [1],
@@ -301,7 +260,7 @@ describe('Groupings Reducer', () => {
 
       it('Sets totalItems from response metadata', () => {
         const action = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: {
             reset: true,
           },
@@ -315,39 +274,25 @@ describe('Groupings Reducer', () => {
         expect(nextState.totalItems).toBe(0);
       });
 
-      it('Does not group a response if it is not an array', () => {
-        const action = {
-          type: constants.LIST_SUCCESS,
-          group: {},
-          normalize: {
-            result: {
-              id: 1,
-              name: 'Test Event',
-            },
-          },
-        };
-        const nextState = reducer({}, action);
-        expect(nextState.totalItems).toBeUndefined();
-      });
-
       it('Sets metadata on a particular grouping from the request', () => {
         const firstAction = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: {
-            by: {
-              key: 'status',
-              index: 'pending',
-            },
+            byKey: 'status_pending',
           },
-          normalize: normalize([
-            {
-              id: 1,
-              name: 'test',
-            }, {
-              id: 2,
-              name: 'test1',
-            },
-          ], [new schema.Entity('posts')]),
+          normalize: normalize(
+            [
+              {
+                id: 1,
+                name: 'test',
+              },
+              {
+                id: 2,
+                name: 'test1',
+              },
+            ],
+            [new schema.Entity('posts')]
+          ),
           meta: {
             responseMeta: {
               skip: 1,
@@ -359,19 +304,16 @@ describe('Groupings Reducer', () => {
         const nextState = reducer({}, firstAction);
         expect(nextState).toEqual({
           groups: {
-            byStatus: {
-              pending: {
-                ...defaultState,
-                hasMadeSuccess: true,
-                isLoading: false,
-                totalItems: 2,
-                ids: [
-                  1, 2,
-                ],
-                meta: {
-                  skip: 1,
-                  take: 'test',
-                },
+            by_status_pending: {
+              ...defaultState,
+              hasMadeSuccess: true,
+              isLoading: false,
+              isList: true,
+              totalItems: 2,
+              ids: [1, 2],
+              meta: {
+                skip: 1,
+                take: 'test',
               },
             },
           },
@@ -380,7 +322,7 @@ describe('Groupings Reducer', () => {
 
       it('Has a unique set of ids', () => {
         const action = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: {},
           normalize: {
             result: [1, 2],
@@ -392,9 +334,9 @@ describe('Groupings Reducer', () => {
         expect(nextState.ids.length).toBe(3);
       });
 
-      it('Handles \'reset\'', () => {
+      it("Handles 'reset'", () => {
         const action = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: { reset: true },
           normalize: {
             result: [1],
@@ -408,7 +350,7 @@ describe('Groupings Reducer', () => {
 
       it('Adds additional ids to the end of ids array with direction = next', () => {
         const action = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: { direction: 'next' },
           normalize: {
             result: [5, 6],
@@ -424,7 +366,7 @@ describe('Groupings Reducer', () => {
 
       it('Adds additional ids to the end of ids array with direction = prev', () => {
         const action = {
-          type: constants.LIST_SUCCESS,
+          type: constants.GET_SUCCESS,
           group: { direction: 'prev' },
           normalize: {
             result: [5, 6],
@@ -474,28 +416,30 @@ describe('Groupings Reducer', () => {
     it('Decrements totalItems on success', () => {
       const action = {
         type: constants.DELETE_SUCCESS,
-        group: { },
+        group: {},
         normalize: {
           result: 3,
         },
       };
-      const nextState = reducer({
-        ids: [
-          1, 2,
-        ],
-        totalItems: 5,
-      }, action);
+      const nextState = reducer(
+        {
+          ids: [1, 2],
+          totalItems: 5,
+        },
+        action
+      );
 
       expect(nextState.ids.length).toEqual(2);
       expect(nextState.ids[0]).toEqual(1);
       expect(nextState.totalItems).toEqual(5);
 
-      const nextNewState = reducer({
-        ids: [
-          1, 2, 3,
-        ],
-        totalItems: 5,
-      }, action);
+      const nextNewState = reducer(
+        {
+          ids: [1, 2, 3],
+          totalItems: 5,
+        },
+        action
+      );
 
       expect(nextNewState.ids.length).toEqual(2);
       expect(nextNewState.ids[0]).toEqual(1);
@@ -506,17 +450,18 @@ describe('Groupings Reducer', () => {
     it('Removes the item on success', () => {
       const action = {
         type: constants.DELETE_SUCCESS,
-        group: { },
+        group: {},
         normalize: {
           result: 2,
         },
       };
-      const nextState = reducer({
-        ids: [
-          1, 2,
-        ],
-        totalItems: 5,
-      }, action);
+      const nextState = reducer(
+        {
+          ids: [1, 2],
+          totalItems: 5,
+        },
+        action
+      );
 
       expect(nextState.ids.length).toEqual(1);
       expect(nextState.ids[0]).toEqual(1);
@@ -534,12 +479,13 @@ describe('Groupings Reducer', () => {
             result: 3,
           },
         };
-        const nextState = reducer({
-          ids: [
-            1, 2,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: [1, 2],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.totalItems).toEqual(5);
         expect(nextState.ids.length).toEqual(3);
@@ -556,12 +502,13 @@ describe('Groupings Reducer', () => {
             result: 3,
           },
         };
-        const nextState = reducer({
-          ids: [
-            1, 2,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: [1, 2],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.totalItems).toEqual(5);
         expect(nextState.ids.length).toEqual(3);
@@ -578,12 +525,13 @@ describe('Groupings Reducer', () => {
             result: 3,
           },
         };
-        const nextState = reducer({
-          ids: [
-            1, 2,
-          ],
-          totalItems: 5,
-        }, action);
+        const nextState = reducer(
+          {
+            ids: [1, 2],
+            totalItems: 5,
+          },
+          action
+        );
 
         expect(nextState.totalItems).toEqual(5);
         expect(nextState.ids.length).toEqual(3);
@@ -602,12 +550,13 @@ describe('Groupings Reducer', () => {
         },
       };
 
-      const afterState = reducer({
-        ids: [
-          1, 2, 3,
-        ],
-        totalItems: 5,
-      }, newAction);
+      const afterState = reducer(
+        {
+          ids: [1, 2, 3],
+          totalItems: 5,
+        },
+        newAction
+      );
 
       expect(afterState.totalItems).toEqual(5);
       expect(afterState.ids.length).toEqual(3);
@@ -619,31 +568,31 @@ describe('Groupings Reducer', () => {
     it('Removes from grouping', () => {
       const action = {
         type: constants.OPTIMISTIC_REQUEST,
-        group: { by: { key: 'status', index: 'pending' } },
+        group: { byKey: 'status_pending' },
         removeEntity: { id: 1 },
       };
-      const nextState = reducer({
-        groups: {
-          byStatus: {
-            pending: {
+      const nextState = reducer(
+        {
+          groups: {
+            by_status_pending: {
               ids: [1, 2],
             },
           },
         },
-      }, action);
+        action
+      );
 
-      expect(nextState.groups.byStatus.pending.ids.length).toBe(1);
-      expect(nextState.groups.byStatus.pending.ids[0]).toBe(2);
+      expect(nextState.groups.by_status_pending.ids.length).toBe(1);
+      expect(nextState.groups.by_status_pending.ids[0]).toBe(2);
     });
 
     it('Adds an id to one grouping and removes it from another', () => {
       const action = {
         type: constants.OPTIMISTIC_REQUEST,
         group: {
-          by: { key: 'status', index: 'active' },
+          byKey: 'status_active',
           removeFromGrouping: {
-            key: 'status',
-            index: 'pending',
+            byKey: 'status_pending',
           },
         },
         normalize: {
@@ -651,21 +600,18 @@ describe('Groupings Reducer', () => {
         },
         payload: { id: 1 },
       };
-      const nextState = reducer({
-        groups: {
-          byStatus: {
-            pending: {
-              ids: [1, 2],
-            },
+      const nextState = reducer(
+        {
+          groups: {
+            by_status_pending: { ids: [1, 2] },
           },
         },
-      }, action);
+        action
+      );
 
-      expect(nextState.groups.byStatus.pending.ids.length).toBe(1);
-      expect(nextState.groups.byStatus.pending.ids[0]).toBe(2);
-
-      expect(nextState.groups.byStatus.active.ids.length).toBe(1);
-      expect(nextState.groups.byStatus.active.ids[0]).toBe(1);
+      expect(nextState.groups.by_status_pending.ids.length).toBe(1);
+      expect(nextState.groups.by_status_active.ids.length).toBe(1);
+      expect(nextState.groups.by_status_active.ids[0]).toBe(1);
     });
   });
 });

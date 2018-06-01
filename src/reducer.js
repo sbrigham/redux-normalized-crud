@@ -50,6 +50,7 @@ export const entitiesReducer = (state = {}, action) => {
 };
 
 export const defaultState = {
+  isList: null,
   lastQuery: null,
   hasMadeRequest: false,
   isLoading: false,
@@ -60,7 +61,7 @@ export const defaultState = {
   hasMadeSuccess: false,
 };
 
-export const groupByKey = key => `by${key.charAt(0).toUpperCase() + key.slice(1)}`;
+export const groupByKey = key => `by_${key}`;
 
 export const groupingReducer = (reduxConst) => {
   const reducer = (state = defaultState, action) => {
@@ -76,6 +77,7 @@ export const groupingReducer = (reduxConst) => {
     const isNext = direction === 'next';
 
     switch (action.type) {
+      case reduxConst.GET_REQUEST:
       case reduxConst.LIST_REQUEST:
       case reduxConst.CREATE_REQUEST:
       case reduxConst.UPDATE_REQUEST:
@@ -87,6 +89,22 @@ export const groupingReducer = (reduxConst) => {
           lastQuery: action.query ? action.query : null,
           totalItems,
         };
+      }
+      case reduxConst.GET_SUCCESS: {
+        const newIDs = Array.isArray(result) ? result : [result];
+        const reset = 'reset' in group ? group.reset : false;
+        let existingIds = [...state.ids];
+
+        if (reset) existingIds = [];
+        const ids = !isNext ? [...newIDs, ...existingIds] : [...existingIds, ...newIDs];
+        return Object.assign({}, state, {
+          isList: Array.isArray(result),
+          ids: uniq(ids),
+          hasMadeSuccess: true,
+          isLoading: false,
+          totalItems: totalItems || ids.length,
+          meta: meta.responseMeta ? meta.responseMeta : state.meta,
+        });
       }
       case reduxConst.LIST_SUCCESS: {
         if (!Array.isArray(result)) return state;
@@ -181,7 +199,9 @@ export const groupingReducer = (reduxConst) => {
 
     switch (action.type) {
       case reduxConst.LIST_REQUEST:
+      case reduxConst.GET_REQUEST:
       case reduxConst.LIST_SUCCESS:
+      case reduxConst.GET_SUCCESS:
       case reduxConst.LIST_FAILURE:
       case reduxConst.CREATE_REQUEST:
       case reduxConst.CREATE_SUCCESS:
@@ -193,42 +213,23 @@ export const groupingReducer = (reduxConst) => {
       case reduxConst.DELETE_SUCCESS:
       case reduxConst.DELETE_FAILURE:
       case reduxConst.OPTIMISTIC_REQUEST: {
-        const { by, removeFromGrouping = false } = group;
-        if (by) {
-          if (group && !('by' in group)) {
-            throw new Error(
-              `"by" must be specified in the form by: { index: number, key: string}. For action type: ${
-                action.type
-              } `
-            );
-          }
-          if (group.by && !('key' in group.by)) {
-            throw new Error(
-              `A key as a string must be specified in your by. For action type: ${action.type}`
-            );
-          }
-          if (group.by && !('index' in group.by)) {
-            throw new Error(
-              `An index as an int/string must be specified in your by. For action type: ${
-                action.type
-              }`
-            );
-          }
+        const { byKey, removeFromGrouping = false } = group;
+        if (byKey) {
+          const prefixedByKey = groupByKey(byKey);
 
-          const { key, index } = by;
-          const byKey = groupByKey(key);
-
-          const existingGroups = state.groups ? state.groups[byKey] : {};
+          const existingGroups = state.groups || {};
           const existingValues =
-            state.groups && state.groups[byKey] ? state.groups[byKey][index] : defaultState;
+            state.groups && state.groups[prefixedByKey]
+              ? state.groups[prefixedByKey]
+              : defaultState;
           const updatedGroups = {};
 
           if (removeFromGrouping && action.payload && action.payload.id > -1) {
-            const { key: keyToRemove, index: indexToRemove } = removeFromGrouping;
+            const { byKey: keyToRemove } = removeFromGrouping;
             const valuesToRemove = state.groups
-              ? state.groups[groupByKey(keyToRemove)][indexToRemove]
+              ? state.groups[groupByKey(keyToRemove)]
               : { ids: [] };
-            updatedGroups[indexToRemove] = reducer(valuesToRemove, {
+            updatedGroups[groupByKey(keyToRemove)] = reducer(valuesToRemove, {
               ...action,
               removeEntity: { id: action.payload.id },
             });
@@ -236,15 +237,13 @@ export const groupingReducer = (reduxConst) => {
           return {
             ...state,
             groups: {
-              ...state.groups,
-              [byKey]: {
-                ...existingGroups,
-                ...updatedGroups,
-                [index]: { ...existingValues, ...reducer(existingValues, action) },
-              },
+              ...existingGroups,
+              ...updatedGroups,
+              [prefixedByKey]: { ...existingValues, ...reducer(existingValues, action) },
             },
           };
         }
+
         const { groups, ...everythingElse } = state;
         everythingElse = { ids: [], ...everythingElse };
         return {

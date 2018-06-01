@@ -12,7 +12,7 @@ export default ({
   onServerError,
 }) => {
   const resourceUrl = schema._key;
-  const getRequest = function* (api, loadSingle = false, action) {
+  const getRequest = function* (api, action) {
     const { query = {}, group = {}, onError, onSuccess, deferLoadRequest = false } = action;
     if (deferLoadRequest) return;
     const { path = {} } = action;
@@ -34,7 +34,7 @@ export default ({
 
       const { normalize, totalItems = null, meta = {} } = handleResponse(response.data, schema);
 
-      const successAction = loadSingle ? creators.getSuccess : creators.listSuccess;
+      const successAction = creators.getSuccess;
 
       yield put(
         successAction({
@@ -51,7 +51,7 @@ export default ({
     } catch (error) {
       if (onError) onError(error);
       onServerError(error);
-      const failureAction = loadSingle ? creators.getFailure : creators.listFailure;
+      const failureAction = creators.getFailure;
       yield put(failureAction({ error, path, group }));
     }
   };
@@ -272,10 +272,7 @@ export default ({
     init(api, readOnly = false) {
       return function* () {
         if (!api) throw new Error('you must specify an api');
-        const readOnlyTasks = [
-          takeEvery(constants.GET_REQUEST, getRequest, api, true),
-          takeEvery(constants.LIST_REQUEST, getRequest, api, false),
-        ];
+        const readOnlyTasks = [takeEvery(constants.GET_REQUEST, getRequest, api)];
         const cudTasks = [
           takeEvery(constants.CREATE_REQUEST, onCreateRequest, api),
           takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
