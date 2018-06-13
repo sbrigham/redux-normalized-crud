@@ -37,7 +37,7 @@ export default (base) => {
 
   const patch = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return axios.post(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
+    return axios.patch(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
       ...config,
       headers: {
         ...defaultHeaders,
