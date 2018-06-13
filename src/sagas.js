@@ -56,7 +56,7 @@ export default ({
     }
   };
   const onCreateRequest = function* (api, action) {
-    const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
+    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
     const { url = '', payload = {}, params = {} } = query;
 
     const optimisticTransactionId = uuid.v4();
@@ -128,8 +128,83 @@ export default ({
       );
     }
   };
+
+  const onPatchRequest = function* (api, action) {
+    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
+    const { url = '', payload = {}, params = {} } = query;
+
+    const optimisticTransactionId = uuid.v4();
+    let fetchConfig = {};
+    if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
+
+    try {
+      if (optimistic) {
+        const { normalize: optimisticNormalize, meta = {} } = handleResponse(
+          { id: optimisticTransactionId, ...payload },
+          schema
+        );
+        yield put(
+          creators.optimisticRequest({
+            meta: {
+              optimisticTransactionId,
+              optimistic: {
+                type: BEGIN,
+                id: optimisticTransactionId,
+              },
+              responseMeta: meta,
+            },
+            group,
+            payload,
+            normalize: optimisticNormalize,
+          })
+        );
+      }
+
+      const response = yield call(api.patch, url, payload, params, fetchConfig);
+      const { normalize, meta } = handleResponse(response.data, schema);
+
+      yield put(
+        creators.patchSuccess({
+          query,
+          group,
+          response,
+          normalize,
+          meta: {
+            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
+            optimistic: optimistic
+              ? {
+                type: COMMIT,
+                id: optimisticTransactionId,
+              }
+              : null,
+            responseMeta: meta,
+          },
+        })
+      );
+      if (onSuccess) onSuccess(response);
+    } catch (error) {
+      onServerError(error);
+      if (onError) onError(error);
+      yield put(
+        creators.patchFailure({
+          error,
+          group,
+          meta: {
+            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
+            optimistic: optimistic
+              ? {
+                type: REVERT,
+                id: optimisticTransactionId,
+              }
+              : null,
+          },
+        })
+      );
+    }
+  };
+
   const onUpdateRequest = function* (api, action) {
-    const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
+    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
     const { payload = {}, url = '', params = {} } = query;
 
     if (payload.id === undefined) {
@@ -146,7 +221,7 @@ export default ({
         yield put(
           creators.optimisticRequest({
             meta: {
-              optimisticTransactionId,
+              optimisticTransactionId: optimistic ? optimisticTransactionId : null,
               optimistic: {
                 type: BEGIN,
                 id: optimisticTransactionId,
@@ -169,7 +244,7 @@ export default ({
           group,
           response,
           meta: {
-            optimisticTransactionId,
+            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
             optimistic: optimistic
               ? {
                 type: COMMIT,
@@ -201,7 +276,7 @@ export default ({
   };
 
   const onDeleteRequest = function* (api, action) {
-    const { query = {}, group = {}, optimistic = true, onSuccess, onError } = action;
+    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
     const { payload = {}, url = '', params = {} } = query;
 
     if (payload.id === undefined) {
@@ -277,6 +352,7 @@ export default ({
           takeEvery(constants.CREATE_REQUEST, onCreateRequest, api),
           takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
           takeEvery(constants.DELETE_REQUEST, onDeleteRequest, api),
+          takeEvery(constants.PATCH_REQUEST, onPatchRequest, api),
         ];
 
         yield readOnly ? all(readOnlyTasks) : all(cudTasks.concat(readOnlyTasks));

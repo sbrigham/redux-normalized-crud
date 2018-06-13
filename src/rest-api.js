@@ -35,6 +35,17 @@ export default (base) => {
     });
   };
 
+  const patch = (url, body, params, config = {}) => {
+    const overrideHeaders = config.headers || {};
+    return axios.post(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
+      ...config,
+      headers: {
+        ...defaultHeaders,
+        ...overrideHeaders,
+      },
+    });
+  };
+
   const put = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
     return axios.put(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
@@ -49,6 +60,7 @@ export default (base) => {
   return {
     get,
     post,
+    patch,
     put,
     delete: (url, body, params, config = {}) => {
       const overrideHeaders = config.headers || {};
