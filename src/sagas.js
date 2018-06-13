@@ -96,7 +96,7 @@ export default ({
           response,
           normalize,
           meta: {
-            optimisticTransactionId,
+            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
             optimistic: optimistic
               ? {
                 type: COMMIT,
