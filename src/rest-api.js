@@ -26,9 +26,7 @@ export default (base) => {
 
   const post = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return axios.post(`${baseUrl}${url}?${Qs.stringify(params)}`, {
-      method: 'POST',
-      body: JSON.stringify(body),
+    return axios.post(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
       ...config,
       headers: {
         ...defaultHeaders,
@@ -39,9 +37,7 @@ export default (base) => {
 
   const put = (url, body, params, config = {}) => {
     const overrideHeaders = config.headers || {};
-    return axios.put(`${baseUrl}${url}?${Qs.stringify(params)}`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
+    return axios.put(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
       ...config,
       headers: {
         ...defaultHeaders,
@@ -56,9 +52,7 @@ export default (base) => {
     put,
     delete: (url, body, params, config = {}) => {
       const overrideHeaders = config.headers || {};
-      axios.delete(`${baseUrl}${url}?${Qs.stringify(params)}`, {
-        method: 'DELETE',
-        body: JSON.stringify(body),
+      axios.delete(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
         ...config,
         headers: {
           ...defaultHeaders,
