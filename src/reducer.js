@@ -165,6 +165,7 @@ export const groupingReducer = (reduxConst) => {
         }
 
         return Object.assign({}, state, {
+          isList: Array.isArray(result),
           isLoading: false,
           ids: uniq(existingIds),
           totalItems: newTotal,
