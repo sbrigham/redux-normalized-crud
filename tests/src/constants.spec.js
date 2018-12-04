@@ -1,12 +1,15 @@
 import genConstants from '../../src/constants';
 
 describe('Constants', () => {
-  it('Contains all the keyworks', () => {
+  it('Contains all the keywords', () => {
     const constants = genConstants('post');
     expect(constants).toEqual({
       CREATE_REQUEST: 'POST_CREATE_REQUEST',
       CREATE_SUCCESS: 'POST_CREATE_SUCCESS',
       CREATE_FAILURE: 'POST_CREATE_FAILURE',
+      PATCH_REQUEST: 'POST_PATCH_REQUEST',
+      PATCH_SUCCESS: 'POST_PATCH_SUCCESS',
+      PATCH_FAILURE: 'POST_PATCH_FAILURE',
       UPDATE_REQUEST: 'POST_UPDATE_REQUEST',
       UPDATE_SUCCESS: 'POST_UPDATE_SUCCESS',
       UPDATE_FAILURE: 'POST_UPDATE_FAILURE',

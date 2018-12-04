@@ -13,17 +13,32 @@ export default ({
 }) => {
   const resourceUrl = schema._key;
   const getRequest = function* (api, action) {
-    const { query = {}, group = {}, onError, onSuccess, deferLoadRequest = false } = action;
+    const {
+      query = {},
+      group = {},
+      onError,
+      onSuccess,
+      deferLoadRequest = false,
+      method = 'get',
+    } = action;
     if (deferLoadRequest) return;
+    const methodVerb = method.toLowerCase();
+    if (methodVerb !== 'get' || methodVerb !== 'post') {
+      throw new Error('Method not supported in getRequest');
+    }
     const { path = {} } = action;
-    const { url = '', params = {} } = query;
+    const { url = '', params = {}, payload = {} } = query;
 
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
     try {
       const promise = new Promise((resolve) => {
-        resolve(api.get(url, params, fetchConfig));
+        if (methodVerb === 'get') {
+          resolve(api.get(url, params, fetchConfig));
+        } else {
+          resolve(api.post(url, payload, params, fetchConfig));
+        }
       });
 
       onLoadRequest(promise);
