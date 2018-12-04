@@ -13,21 +13,15 @@ export default ({
 }) => {
   const resourceUrl = schema._key;
   const getRequest = function* (api, action) {
-    const {
-      query = {},
-      group = {},
-      onError,
-      onSuccess,
-      deferLoadRequest = false,
-      method = 'get',
-    } = action;
+    const { query = {}, group = {}, onError, onSuccess, deferLoadRequest = false } = action;
     if (deferLoadRequest) return;
+    const { path = {} } = action;
+    const { url = '', method = 'get', params = {}, payload = {} } = query;
+
     const methodVerb = method.toLowerCase();
     if (methodVerb !== 'get' || methodVerb !== 'post') {
       throw new Error('Method not supported in getRequest');
     }
-    const { path = {} } = action;
-    const { url = '', params = {}, payload = {} } = query;
 
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
