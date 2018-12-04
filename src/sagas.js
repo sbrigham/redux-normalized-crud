@@ -19,7 +19,7 @@ export default ({
     const { url = '', method = 'get', params = {}, payload = {} } = query;
 
     const methodVerb = method.toLowerCase();
-    if (methodVerb !== 'get' || methodVerb !== 'post') {
+    if (methodVerb !== 'get' && methodVerb !== 'post') {
       throw new Error('Method not supported in getRequest');
     }
 
