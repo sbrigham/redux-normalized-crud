@@ -7,71 +7,50 @@ const defaultHeaders = {
   'Content-Type': 'application/json',
 };
 
+const requestUrl = (baseUrl, url, params) =>
+  `${baseUrl}${url}?${Qs.stringify(params)}`;
+
+const buildConfig = (config) => {
+  const overrideHeaders = config.headers || {};
+  return {
+    ...config,
+    headers: {
+      ...defaultHeaders,
+      ...overrideHeaders,
+    },
+  };
+};
+
 export default (base) => {
   let baseUrl = base || '/';
   const setBaseUrl = (newBaseUrl) => {
     baseUrl = newBaseUrl;
   };
 
-  const get = (url, params, config = {}) => {
-    const overrideHeaders = config.headers || {};
-    return axios.get(`${baseUrl}${url}?${Qs.stringify(params)}`, {
-      ...config,
-      headers: {
-        ...defaultHeaders,
-        ...overrideHeaders,
-      },
-    });
-  };
+  const axiosBodyRequest = (verb, url, body, params, config = {}) =>
+    axios[verb](requestUrl(baseUrl, url, params), body, buildConfig(config));
 
-  const post = (url, body, params, config = {}) => {
-    const overrideHeaders = config.headers || {};
-    return axios.post(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
-      ...config,
-      headers: {
-        ...defaultHeaders,
-        ...overrideHeaders,
-      },
-    });
-  };
+  const get = (url, params, config = {}) =>
+    axios.get(requestUrl(baseUrl, url, params), buildConfig(config));
 
-  const patch = (url, body, params, config = {}) => {
-    const overrideHeaders = config.headers || {};
-    return axios.patch(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
-      ...config,
-      headers: {
-        ...defaultHeaders,
-        ...overrideHeaders,
-      },
-    });
-  };
+  const post = (url, body, params, config = {}) =>
+    axiosBodyRequest('post', url, body, params, config);
 
-  const put = (url, body, params, config = {}) => {
-    const overrideHeaders = config.headers || {};
-    return axios.put(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
-      ...config,
-      headers: {
-        ...defaultHeaders,
-        ...overrideHeaders,
-      },
-    });
-  };
+  const patch = (url, body, params, config = {}) =>
+    axiosBodyRequest('patch', url, body, params, config);
+
+  const put = (url, body, params, config = {}) =>
+    axiosBodyRequest('put', url, body, params, config);
+
+  const deleteCall = (url, body, params, config = {}) =>
+    axiosBodyRequest('delete', url, body, params, config);
 
   return {
     get,
     post,
     patch,
     put,
-    delete: (url, body, params, config = {}) => {
-      const overrideHeaders = config.headers || {};
-      axios.delete(`${baseUrl}${url}?${Qs.stringify(params)}`, body, {
-        ...config,
-        headers: {
-          ...defaultHeaders,
-          ...overrideHeaders,
-        },
-      });
-    },
+    delete: deleteCall,
     setBaseUrl,
   };
 };
