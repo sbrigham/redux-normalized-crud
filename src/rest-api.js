@@ -10,7 +10,7 @@ const defaultHeaders = {
 const requestUrl = (baseUrl, url, params) =>
   `${baseUrl}${url}?${Qs.stringify(params)}`;
 
-const buildConfig = (config) => {
+const buildConfig = config => {
   const overrideHeaders = config.headers || {};
   return {
     ...config,
@@ -21,9 +21,9 @@ const buildConfig = (config) => {
   };
 };
 
-export default (base) => {
+export default base => {
   let baseUrl = base || '/';
-  const setBaseUrl = (newBaseUrl) => {
+  const setBaseUrl = newBaseUrl => {
     baseUrl = newBaseUrl;
   };
 
@@ -42,8 +42,8 @@ export default (base) => {
   const put = (url, body, params, config = {}) =>
     axiosBodyRequest('put', url, body, params, config);
 
-  const deleteCall = (url, body, params, config = {}) =>
-    axiosBodyRequest('delete', url, body, params, config);
+  const deleteCall = (url, params, config = {}) =>
+    axios.delete(requestUrl(baseUrl, url, params), buildConfig(config));
 
   return {
     get,
