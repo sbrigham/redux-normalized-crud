@@ -334,7 +334,13 @@ export default ({
       onSuccess,
       onError,
     } = action;
-    const { url = '', params = {} } = query;
+    const { payload = {}, url = '', params = {} } = query;
+
+    if (payload.id === undefined) {
+      throw new Error(
+        'You need to specify an id on query.payload this delete request',
+      );
+    }
 
     let fetchConfig = {};
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
