@@ -12,8 +12,14 @@ export default ({
   onServerError,
 }) => {
   const resourceUrl = schema._key;
-  const getRequest = function* (api, action) {
-    const { query = {}, group = {}, onError, onSuccess, deferLoadRequest = false } = action;
+  const getRequest = function*(api, action) {
+    const {
+      query = {},
+      group = {},
+      onError,
+      onSuccess,
+      deferLoadRequest = false,
+    } = action;
     if (deferLoadRequest) return;
     const { path = {} } = action;
     const { url = '', method = 'get', params = {}, payload = {} } = query;
@@ -27,7 +33,7 @@ export default ({
     if (fetchConfigSelector) fetchConfig = yield select(fetchConfigSelector);
 
     try {
-      const promise = new Promise((resolve) => {
+      const promise = new Promise(resolve => {
         if (methodVerb === 'get') {
           resolve(api.get(url, params, fetchConfig));
         } else {
@@ -41,7 +47,10 @@ export default ({
 
       if (onSuccess) onSuccess(response);
 
-      const { normalize, totalItems = null, meta = {} } = handleResponse(response.data, schema);
+      const { normalize, totalItems = null, meta = {} } = handleResponse(
+        response.data,
+        schema,
+      );
 
       const successAction = creators.getSuccess;
 
@@ -55,7 +64,7 @@ export default ({
             totalItems,
             responseMeta: meta,
           },
-        })
+        }),
       );
     } catch (error) {
       if (onError) onError(error);
@@ -64,8 +73,14 @@ export default ({
       yield put(failureAction({ error, path, group }));
     }
   };
-  const onCreateRequest = function* (api, action) {
-    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
+  const onCreateRequest = function*(api, action) {
+    const {
+      query = {},
+      group = {},
+      optimistic = false,
+      onSuccess,
+      onError,
+    } = action;
     const { url = '', payload = {}, params = {} } = query;
 
     const optimisticTransactionId = uuid.v4();
@@ -76,7 +91,7 @@ export default ({
       if (optimistic) {
         const { normalize: optimisticNormalize, meta = {} } = handleResponse(
           { id: optimisticTransactionId, ...payload },
-          schema
+          schema,
         );
         yield put(
           creators.optimisticRequest({
@@ -91,7 +106,7 @@ export default ({
             group,
             payload,
             normalize: optimisticNormalize,
-          })
+          }),
         );
       }
 
@@ -105,16 +120,18 @@ export default ({
           response,
           normalize,
           meta: {
-            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
+            optimisticTransactionId: optimistic
+              ? optimisticTransactionId
+              : null,
             optimistic: optimistic
               ? {
-                type: COMMIT,
-                id: optimisticTransactionId,
-              }
+                  type: COMMIT,
+                  id: optimisticTransactionId,
+                }
               : null,
             responseMeta: meta,
           },
-        })
+        }),
       );
       if (onSuccess) onSuccess(response);
     } catch (error) {
@@ -128,18 +145,24 @@ export default ({
             optimisticTransactionId,
             optimistic: optimistic
               ? {
-                type: REVERT,
-                id: optimisticTransactionId,
-              }
+                  type: REVERT,
+                  id: optimisticTransactionId,
+                }
               : null,
           },
-        })
+        }),
       );
     }
   };
 
-  const onPatchRequest = function* (api, action) {
-    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
+  const onPatchRequest = function*(api, action) {
+    const {
+      query = {},
+      group = {},
+      optimistic = false,
+      onSuccess,
+      onError,
+    } = action;
     const { url = '', payload = {}, params = {} } = query;
 
     const optimisticTransactionId = uuid.v4();
@@ -150,7 +173,7 @@ export default ({
       if (optimistic) {
         const { normalize: optimisticNormalize, meta = {} } = handleResponse(
           { id: optimisticTransactionId, ...payload },
-          schema
+          schema,
         );
         yield put(
           creators.optimisticRequest({
@@ -165,7 +188,7 @@ export default ({
             group,
             payload,
             normalize: optimisticNormalize,
-          })
+          }),
         );
       }
 
@@ -179,16 +202,18 @@ export default ({
           response,
           normalize,
           meta: {
-            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
+            optimisticTransactionId: optimistic
+              ? optimisticTransactionId
+              : null,
             optimistic: optimistic
               ? {
-                type: COMMIT,
-                id: optimisticTransactionId,
-              }
+                  type: COMMIT,
+                  id: optimisticTransactionId,
+                }
               : null,
             responseMeta: meta,
           },
-        })
+        }),
       );
       if (onSuccess) onSuccess(response);
     } catch (error) {
@@ -199,25 +224,35 @@ export default ({
           error,
           group,
           meta: {
-            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
+            optimisticTransactionId: optimistic
+              ? optimisticTransactionId
+              : null,
             optimistic: optimistic
               ? {
-                type: REVERT,
-                id: optimisticTransactionId,
-              }
+                  type: REVERT,
+                  id: optimisticTransactionId,
+                }
               : null,
           },
-        })
+        }),
       );
     }
   };
 
-  const onUpdateRequest = function* (api, action) {
-    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
+  const onUpdateRequest = function*(api, action) {
+    const {
+      query = {},
+      group = {},
+      optimistic = false,
+      onSuccess,
+      onError,
+    } = action;
     const { payload = {}, url = '', params = {} } = query;
 
     if (payload.id === undefined) {
-      throw new Error('You need to specify an id on query.payload this update request');
+      throw new Error(
+        'You need to specify an id on query.payload this update request',
+      );
     }
 
     const optimisticTransactionId = uuid.v4();
@@ -226,11 +261,16 @@ export default ({
 
     try {
       if (optimistic) {
-        const { normalize: optimisticNormalize, meta = {} } = handleResponse(payload, schema);
+        const { normalize: optimisticNormalize, meta = {} } = handleResponse(
+          payload,
+          schema,
+        );
         yield put(
           creators.optimisticRequest({
             meta: {
-              optimisticTransactionId: optimistic ? optimisticTransactionId : null,
+              optimisticTransactionId: optimistic
+                ? optimisticTransactionId
+                : null,
               optimistic: {
                 type: BEGIN,
                 id: optimisticTransactionId,
@@ -241,7 +281,7 @@ export default ({
             group,
             payload,
             normalize: optimisticNormalize,
-          })
+          }),
         );
       }
 
@@ -253,15 +293,17 @@ export default ({
           group,
           response,
           meta: {
-            optimisticTransactionId: optimistic ? optimisticTransactionId : null,
+            optimisticTransactionId: optimistic
+              ? optimisticTransactionId
+              : null,
             optimistic: optimistic
               ? {
-                type: COMMIT,
-                id: optimisticTransactionId,
-              }
+                  type: COMMIT,
+                  id: optimisticTransactionId,
+                }
               : null,
           },
-        })
+        }),
       );
       if (onSuccess) onSuccess(response);
     } catch (error) {
@@ -274,22 +316,30 @@ export default ({
             optimisticTransactionId,
             optimistic: optimistic
               ? {
-                type: REVERT,
-                id: optimisticTransactionId,
-              }
+                  type: REVERT,
+                  id: optimisticTransactionId,
+                }
               : null,
           },
-        })
+        }),
       );
     }
   };
 
-  const onDeleteRequest = function* (api, action) {
-    const { query = {}, group = {}, optimistic = false, onSuccess, onError } = action;
+  const onDeleteRequest = function*(api, action) {
+    const {
+      query = {},
+      group = {},
+      optimistic = false,
+      onSuccess,
+      onError,
+    } = action;
     const { payload = {}, url = '', params = {} } = query;
 
     if (payload.id === undefined) {
-      throw new Error('You need to specify an id on query.payload this delete request');
+      throw new Error(
+        'You need to specify an id on query.payload this delete request',
+      );
     }
 
     let fetchConfig = {};
@@ -312,10 +362,10 @@ export default ({
               id: payload.id,
               entityName: resourceUrl,
             },
-          })
+          }),
         );
       }
-      const response = yield call(api.delete, url, payload, params, fetchConfig);
+      const response = yield call(api.delete, url, params, fetchConfig);
       yield put(
         creators.deleteSuccess({
           group,
@@ -323,12 +373,12 @@ export default ({
             optimisticTransactionId,
             optimistic: optimistic
               ? {
-                type: COMMIT,
-                id: optimisticTransactionId,
-              }
+                  type: COMMIT,
+                  id: optimisticTransactionId,
+                }
               : null,
           },
-        })
+        }),
       );
       if (onSuccess) onSuccess(response);
     } catch (error) {
@@ -342,21 +392,23 @@ export default ({
             optimisticTransactionId,
             optimistic: optimistic
               ? {
-                type: REVERT,
-                id: optimisticTransactionId,
-              }
+                  type: REVERT,
+                  id: optimisticTransactionId,
+                }
               : null,
           },
-        })
+        }),
       );
     }
   };
 
   return {
     init(api, readOnly = false) {
-      return function* () {
+      return function*() {
         if (!api) throw new Error('you must specify an api');
-        const readOnlyTasks = [takeEvery(constants.GET_REQUEST, getRequest, api)];
+        const readOnlyTasks = [
+          takeEvery(constants.GET_REQUEST, getRequest, api),
+        ];
         const cudTasks = [
           takeEvery(constants.CREATE_REQUEST, onCreateRequest, api),
           takeEvery(constants.UPDATE_REQUEST, onUpdateRequest, api),
@@ -364,7 +416,9 @@ export default ({
           takeEvery(constants.PATCH_REQUEST, onPatchRequest, api),
         ];
 
-        yield readOnly ? all(readOnlyTasks) : all(cudTasks.concat(readOnlyTasks));
+        yield readOnly
+          ? all(readOnlyTasks)
+          : all(cudTasks.concat(readOnlyTasks));
       };
     },
   };

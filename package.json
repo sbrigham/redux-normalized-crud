@@ -1,6 +1,6 @@
 {
   "name": "redux-normalized-crud",
-  "version": "2.1.1-beta3",
+  "version": "2.1.1-beta7",
   "description": "An attempt to standardize restful calls within a growing redux application",
   "main": "lib/index.js",
   "scripts": {
@@ -58,6 +58,7 @@
     "eslint-plugin-prefer-object-spread": "^1.0.0",
     "eslint-plugin-react": "^6.8.0",
     "jest": "^19.0.2",
-    "jest-cli": "^23.1.0"
+    "jest-cli": "^23.1.0",
+    "normalizr": "^3.2.2"
   }
 }
