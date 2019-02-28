@@ -58,6 +58,7 @@
     "eslint-plugin-prefer-object-spread": "^1.0.0",
     "eslint-plugin-react": "^6.8.0",
     "jest": "^19.0.2",
-    "jest-cli": "^23.1.0"
+    "jest-cli": "^23.1.0",
+    "normalizr": "^3.2.2"
   }
 }
